@@ -38,6 +38,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var activeEngineBadge: TextView
     private lateinit var geminiVoiceChipsRow: LinearLayout
     private lateinit var simSpinner: Spinner
+    private lateinit var languageSpinner: Spinner
+    private lateinit var languageDescriptionText: TextView
     private lateinit var geminiVoiceLabel: View
     private lateinit var permissionsBar: View
     private lateinit var personalitySegmented: SegmentedControl
@@ -69,6 +71,10 @@ class SettingsActivity : AppCompatActivity() {
     private var selectedHomeStyleIndex = 0 // 0 = Classic 3D Orb, 1 = Cyber HUD Blue
     private var selectedThemeIndex = 0 // 0 = Arc Blue (Default), 1 = Amber Gold
     private var selectedSimIndex = 0 // 0 = "Always ask"
+    private var selectedLanguageIndex = 0
+
+    private val languageLabels = listOf("Auto Detect", "Tamil / Tanglish", "English", "Hinglish")
+    private val languageValues = listOf("auto", "tamil", "english", "hinglish")
 
     private val defaultGeminiModel = "models/gemini-3.1-flash-live-preview"
 
@@ -126,6 +132,8 @@ class SettingsActivity : AppCompatActivity() {
         activeEngineBadge = findViewById(R.id.activeEngineBadge)
         geminiVoiceChipsRow = findViewById(R.id.geminiVoiceChipsRow)
         simSpinner = findViewById(R.id.simSpinner)
+        languageSpinner = findViewById(R.id.languageSpinner)
+        languageDescriptionText = findViewById(R.id.languageDescriptionText)
         geminiVoiceLabel = findViewById(R.id.geminiVoiceLabel)
         permissionsBar = findViewById(R.id.permissionsBar)
         permissionsBar.pressFeedback(0.96f)
@@ -188,6 +196,22 @@ class SettingsActivity : AppCompatActivity() {
                 apiKeyVisibilityToggle.setImageResource(R.drawable.ic_visibility)
             }
             apiKeyInput.setSelection(apiKeyInput.text?.length ?: 0)
+        }
+
+        val languageAdapter = ArrayAdapter(this, R.layout.sim_spinner_item_selected, languageLabels)
+        languageAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
+        languageSpinner.adapter = languageAdapter
+        languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedLanguageIndex = position
+                languageDescriptionText.text = when (languageValues[position]) {
+                    "tamil" -> "Reply in Tamil / Tanglish."
+                    "english" -> "Reply in English."
+                    "hinglish" -> "Reply in Hindi + English using Latin script."
+                    else -> "Reply in the language you use."
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         saveButton.pressFeedback(0.95f)
@@ -300,6 +324,10 @@ class SettingsActivity : AppCompatActivity() {
         selectedPersonalityIndex = personalityIndex
         personalitySegmented.setOptions(listOf("JARVIS ⚡", "GF 💖", "Pro 💼", "Assist 🤖"), personalityIndex)
         personalityDescriptionText.text = personalityDescriptions[personalityIndex]
+
+        val savedLanguage = p.getString("response_language", "auto") ?: "auto"
+        selectedLanguageIndex = languageValues.indexOf(savedLanguage).coerceAtLeast(0)
+        languageSpinner.setSelection(selectedLanguageIndex, false)
 
         val savedHomeStyle = p.getString("home_screen_style", "classic")
         selectedHomeStyleIndex = if (savedHomeStyle == "cyber_hud") 1 else 0
@@ -484,12 +512,13 @@ class SettingsActivity : AppCompatActivity() {
             putString("personality_mode", selectedPersonality)
             putString("home_screen_style", homeStyleValue)
             putString(ThemeManager.PREF_KEY_THEME, newTheme)
+            putString("response_language", languageValues.getOrNull(selectedLanguageIndex) ?: "auto")
             apply()
         }
 
         val newApiKey = apiKeyInput.text.toString().trim()
         val newModel = geminiModelValues.getOrNull(selectedModelIndex) ?: defaultGeminiModel
-        val newPrompt = com.jarvis.assistant.util.PromptBuilder.buildSystemPrompt(newUserName, selectedPersonality, isFemale, selectedVoice)
+        val newPrompt = com.jarvis.assistant.util.PromptBuilder.buildSystemPrompt(newUserName, selectedPersonality, isFemale, selectedVoice, languageValues.getOrNull(selectedLanguageIndex) ?: "auto")
 
         try {
             com.jarvis.assistant.service.JarvisVoiceService.instance?.updateVoice(selectedVoice)
