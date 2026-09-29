@@ -6,7 +6,7 @@ import java.util.Locale
 
 object PromptBuilder {
 
-    fun buildSystemPrompt(userName: String, personality: String, isFemale: Boolean, voiceName: String = "Aoede"): String {
+    fun buildSystemPrompt(userName: String, personality: String, isFemale: Boolean, voiceName: String = "Aoede", responseLanguage: String = "auto"): String {
         val now = SimpleDateFormat("EEEE, dd MMMM yyyy, HH:mm", Locale.getDefault()).format(Date())
 
         val maleVoiceNames = setOf("puck", "charon", "fenrir", "orus", "arvind", "amartya", "dev")
@@ -37,6 +37,31 @@ object PromptBuilder {
             - In Hinglish/Hindi, ALWAYS use male verb forms and inflections: "kar raha hoon", "karunga", "dekh raha hoon", "chala raha hoon", "sun raha hoon", "aa gaya hoon", "ho gaya", "raha hoon".
             - NEVER use female verb forms like "kar rahi hoon", "karungi", "dekh rahi hoon", "chala rahi hoon", "aa gayi hoon", "rahi hoon".
             - In English, speak naturally as a male companion/assistant ("I'll handle it for you", "I'm right here").
+            """.trimIndent()
+        }
+
+        val languageInstruction = when (responseLanguage.lowercase()) {
+            "tamil" -> """
+                RESPONSE LANGUAGE: TAMIL / TANGLISH (LOCKED)
+                - Reply in Tamil or Tanglish according to the user's wording.
+                - Tamil script is allowed. Natural Tanglish is also allowed.
+                - Do not switch to Hindi unless the user explicitly asks for Hindi.
+            """.trimIndent()
+            "english" -> """
+                RESPONSE LANGUAGE: ENGLISH (LOCKED)
+                - Reply in clear, natural English.
+                - Do not switch to Tamil, Hindi, or Hinglish unless the user explicitly asks.
+            """.trimIndent()
+            "hinglish" -> """
+                RESPONSE LANGUAGE: HINGLISH (LOCKED)
+                - Reply in natural Hindi + English using Latin script.
+                - Do not use Devanagari unless the user explicitly asks for it.
+            """.trimIndent()
+            else -> """
+                RESPONSE LANGUAGE: AUTO DETECT
+                - Reply naturally in the same language/style the user uses.
+                - Support Tamil, Tanglish, English, Hindi, and Hinglish.
+                - Tamil script is allowed when the user uses Tamil script.
             """.trimIndent()
         }
 
@@ -98,6 +123,8 @@ object PromptBuilder {
             User's name: $userName
 
             $genderInstruction
+
+            $languageInstruction
 
             $personalityBlock
 
