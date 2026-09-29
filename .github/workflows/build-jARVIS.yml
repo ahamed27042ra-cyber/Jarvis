@@ -3,6 +3,8 @@ name: Build JARVIS APK
 on:
   push:
     branches: [tamil-language-final]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
