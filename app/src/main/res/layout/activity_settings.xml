@@ -369,6 +369,27 @@
                             android:orientation="horizontal" />
                     </HorizontalScrollView>
 
+                    <!-- RESPONSE LANGUAGE -->
+                    <TextView style="@style/SettingsFieldLabel" android:layout_marginTop="16dp" android:text="@string/language_label" />
+                    <Spinner
+                        android:id="@+id/languageSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_spinner_field"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="28dp"
+                        android:popupBackground="@drawable/bg_dialog"
+                        android:spinnerMode="dropdown" />
+                    <TextView
+                        android:id="@+id/languageDescriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Reply in the same language you use."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                     <!-- HORIZONTAL ROW: APP PERMISSIONS & PREFERRED SIM SIDE-BY-SIDE -->
                     <LinearLayout
                         android:layout_width="match_parent"
