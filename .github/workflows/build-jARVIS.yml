@@ -21,9 +21,16 @@ jobs:
           java-version: '17'
           cache: gradle
       - name: Build debug APK
-        run: chmod +x ./gradlew && ./gradlew assembleDebug
-      - name: Upload APK
+        run: chmod +x ./gradlew && ./gradlew assembleDebug --stacktrace
+      - name: Build release APK
+        run: ./gradlew assembleRelease --stacktrace
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: JARVIS-tamil-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-tamil-release
+          path: app/build/outputs/apk/release/app-release.apk
