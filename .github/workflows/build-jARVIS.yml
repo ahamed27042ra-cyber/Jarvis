@@ -22,6 +22,11 @@ jobs:
           cache: gradle
       - name: Build debug APK
         run: chmod +x ./gradlew && ./gradlew assembleDebug --stacktrace
+      - name: Print CI signing fingerprints
+        run: |
+          echo "CI debug keystore SHA-1:"
+          keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep -E 'SHA1:|SHA-256:'
+
       - name: Build release APK
         run: ./gradlew assembleRelease --stacktrace
       - name: Upload debug APK
