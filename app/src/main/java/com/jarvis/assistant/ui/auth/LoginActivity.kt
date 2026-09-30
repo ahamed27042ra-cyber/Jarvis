@@ -3,6 +3,8 @@ package com.jarvis.assistant.ui.auth
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Build
+import android.provider.Settings
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -25,6 +27,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.jarvis.assistant.R
+import com.jarvis.assistant.service.FloatingOrbService
 import com.jarvis.assistant.ui.legal.PrivacyPolicyActivity
 import com.jarvis.assistant.ui.legal.TermsActivity
 import com.jarvis.assistant.ui.main.MainActivity
@@ -305,6 +308,11 @@ class LoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loginOrbView.onResume()
+        // Keep the floating JARVIS orb available as soon as overlay permission is granted,
+        // including while the user is on the login screen.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
+            FloatingOrbService.startService(this)
+        }
     }
 
     override fun onPause() {
