@@ -29,6 +29,25 @@ jobs:
 
       - name: Build release APK
         run: ./gradlew assembleRelease --stacktrace
+      - name: Extract APK signing certificates
+        run: |
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
+          echo "Using apksigner: $APKSIGNER"
+          "$APKSIGNER" verify --print-certs app/build/outputs/apk/debug/app-debug.apk > debug-apk-certs.txt
+          "$APKSIGNER" verify --print-certs app/build/outputs/apk/release/app-release.apk > release-apk-certs.txt
+          echo "=== DEBUG APK CERTIFICATE ==="
+          cat debug-apk-certs.txt
+          echo "=== RELEASE APK CERTIFICATE ==="
+          cat release-apk-certs.txt
+
+      - name: Upload signing certificate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-signing-certificates
+          path: |
+            debug-apk-certs.txt
+            release-apk-certs.txt
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
