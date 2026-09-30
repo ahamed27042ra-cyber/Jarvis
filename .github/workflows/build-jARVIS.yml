@@ -20,6 +20,21 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
+      - name: Patch Firebase web OAuth client ID
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app/src/main/java/com/jarvis/assistant/ui/auth/LoginActivity.kt")
+          s = p.read_text()
+          old = "133761514499-0qvc5jbac1pljqqfcrfjlqlu2dsc1jc8.apps.googleusercontent.com"
+          new = "458985654107-j9tnls725nq94v16b0cp1oe0v0a4sopg.apps.googleusercontent.com"
+          if old not in s:
+              raise SystemExit("Expected old Firebase web client ID not found")
+          p.write_text(s.replace(old, new, 1))
+          print("Firebase web OAuth client ID patched for build")
+          PY
+          grep -n "val webClientId" app/src/main/java/com/jarvis/assistant/ui/auth/LoginActivity.kt
+
       - name: Build debug APK
         run: chmod +x ./gradlew && ./gradlew assembleDebug --stacktrace
       - name: Print CI signing fingerprints
