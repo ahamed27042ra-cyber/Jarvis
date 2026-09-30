@@ -1,9 +1,7 @@
 package com.jarvis.assistant.ui.auth
 
-import android.accounts.AccountManager
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -26,7 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.jarvis.assistant.R
 import com.jarvis.assistant.ui.legal.PrivacyPolicyActivity
 import com.jarvis.assistant.ui.legal.TermsActivity
@@ -48,37 +45,28 @@ class LoginActivity : AppCompatActivity() {
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val data = result.data
-        var account: GoogleSignInAccount? = null
-
-        if (data != null) {
-            try {
-                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                account = task.getResult(ApiException::class.java)
-            } catch (e: ApiException) {
-                Log.e("LoginActivity", "Google Sign In ApiException code: ${e.statusCode}", e)
-                account = try { GoogleSignIn.getSignedInAccountFromIntent(data).result } catch (ex: Exception) { null }
-                    ?: GoogleSignIn.getLastSignedInAccount(this)
-            }
+        signInProgressBar.visibility = View.GONE
+        googleSignInBtn.isEnabled = termsCheckBox.isChecked
+        val data = result.data ?: run {
+            showError("Google Sign-In was cancelled.")
+            return@registerForActivityResult
         }
 
-        if (account == null) {
-            account = GoogleSignIn.getLastSignedInAccount(this)
-        }
-
-        if (account != null) {
+        try {
+            val account = GoogleSignIn.getSignedInAccountFromIntent(data)
+                .getResult(ApiException::class.java)
             val name = account.displayName ?: account.givenName ?: account.email?.substringBefore("@") ?: "Jarvis User"
-            val email = account.email ?: ""
-            val photo = account.photoUrl?.toString() ?: ""
-            val idToken = account.idToken
-
-            onAuthSuccess(name, email, photo, idToken)
-        } else {
-            signInProgressBar.visibility = View.GONE
-            googleSignInBtn.isEnabled = termsCheckBox.isChecked
+            onAuthSuccess(name, account.email.orEmpty(), account.photoUrl?.toString().orEmpty(), account.idToken)
+        } catch (e: ApiException) {
+            Log.e("LoginActivity", "Google Sign-In failed: statusCode=" + e.statusCode, e)
+            GoogleSignIn.getLastSignedInAccount(this)?.let { account ->
+                onAuthSuccess(account.displayName ?: account.givenName ?: account.email?.substringBefore("@") ?: "Jarvis User", account.email.orEmpty(), account.photoUrl?.toString().orEmpty(), account.idToken)
+            } ?: showError("Google Sign-In failed (code " + e.statusCode + "). Please try again.")
+        } catch (e: Exception) {
+            Log.e("LoginActivity", "Google Sign-In result processing failed", e)
+            showError("Google Sign-In failed. Please try again.")
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
@@ -158,7 +146,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupGoogleSignInClient() {
-        val webClientId = "458985654107-j9tnls725nq94v16b0cp1oe0v0a4sopg.apps.googleusercontent.com"
+        val webClientId = getString(R.string.default_web_client_id)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
             .requestEmail()
@@ -179,22 +167,32 @@ class LoginActivity : AppCompatActivity() {
     private fun onAuthSuccess(name: String, email: String, photoUrl: String, idToken: String?) {
         val cleanName = if (name.isNotBlank() && name != "Jarvis User") name else email.substringBefore("@", "Jarvis User")
 
-        if (!idToken.isNullOrBlank()) {
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
-                val user = firebaseAuth.currentUser
-                val realUid = user?.uid ?: ("usr_" + email.lowercase().replace(Regex("[^a-z0-9]"), ""))
-                val realName = user?.displayName?.takeIf { it.isNotBlank() } ?: cleanName
-                val realEmail = user?.email?.takeIf { it.isNotBlank() } ?: email
-                val realPhoto = user?.photoUrl?.toString() ?: photoUrl
+        if (email.isBlank()) {
+            showError("Google did not return an email address.")
+            return
+        }
+        if (idToken.isNullOrBlank()) {
+            showError("Google did not return an ID token. Please try again.")
+            return
+        }
 
-                proceedWithUser(realUid, realName, realEmail, realPhoto)
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        signInProgressBar.visibility = View.VISIBLE
+        googleSignInBtn.isEnabled = false
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.e("LoginActivity", "Firebase Google auth failed", task.exception)
+                showError(task.exception?.message?.let { "Firebase sign-in failed: $it" } ?: "Firebase sign-in failed. Please try again.")
+                return@addOnCompleteListener
             }
-        } else {
-            authenticateWithFirebaseUser(cleanName, email, photoUrl)
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                showError("Firebase sign-in completed without a user. Please try again.")
+                return@addOnCompleteListener
+            }
+            proceedWithUser(user.uid, user.displayName?.takeIf { it.isNotBlank() } ?: cleanName, user.email?.takeIf { it.isNotBlank() } ?: email, user.photoUrl?.toString() ?: photoUrl)
         }
     }
-
     private fun authenticateWithFirebaseUser(name: String, email: String, photoUrl: String) {
         val validEmail = if (email.contains("@")) email else "user_${System.currentTimeMillis()}@gmail.com"
         val tempPassword = "JarvisUser#2026!Secured"
