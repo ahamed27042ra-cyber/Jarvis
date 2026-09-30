@@ -74,7 +74,6 @@ class LoginActivity : AppCompatActivity() {
 
             onAuthSuccess(name, email, photo, idToken)
         } else {
-            // User cancelled or closed Google account picker
             signInProgressBar.visibility = View.GONE
             googleSignInBtn.isEnabled = termsCheckBox.isChecked
         }
@@ -86,7 +85,6 @@ class LoginActivity : AppCompatActivity() {
 
         firebaseAuth = FirebaseAuth.getInstance()
 
-        // Check if user is already authenticated
         if (isLocallyAuthenticated()) {
             launchNextScreen()
             return
@@ -160,7 +158,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupGoogleSignInClient() {
-        val webClientId = "133761514499-0qvc5jbac1pljqqfcrfjlqlu2dsc1jc8.apps.googleusercontent.com"
+        val webClientId = "458985654107-j9tnls725nq94v16b0cp1oe0v0a4sopg.apps.googleusercontent.com"
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
             .requestEmail()
@@ -201,14 +199,12 @@ class LoginActivity : AppCompatActivity() {
         val validEmail = if (email.contains("@")) email else "user_${System.currentTimeMillis()}@gmail.com"
         val tempPassword = "JarvisUser#2026!Secured"
 
-        // Stage 1: Try Email/Password sign in
         firebaseAuth.signInWithEmailAndPassword(validEmail, tempPassword)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful && firebaseAuth.currentUser != null) {
                     val user = firebaseAuth.currentUser!!
                     proceedWithUser(user.uid, name, validEmail, photoUrl)
                 } else {
-                    // Stage 2: Try Email/Password creation
                     firebaseAuth.createUserWithEmailAndPassword(validEmail, tempPassword)
                         .addOnCompleteListener { createTask ->
                             if (createTask.isSuccessful && firebaseAuth.currentUser != null) {
@@ -216,14 +212,12 @@ class LoginActivity : AppCompatActivity() {
                                 proceedWithUser(user.uid, name, validEmail, photoUrl)
                             } else {
                                 Log.w("LoginActivity", "Email auth fallback (${createTask.exception?.message}). Trying Anonymous Auth.")
-                                // Stage 3: Try Anonymous Firebase Auth
                                 firebaseAuth.signInAnonymously()
                                     .addOnCompleteListener { anonTask ->
                                         if (anonTask.isSuccessful && firebaseAuth.currentUser != null) {
                                             val anonUser = firebaseAuth.currentUser!!
                                             proceedWithUser(anonUser.uid, name, validEmail, photoUrl)
                                         } else {
-                                            // Stage 4: Secure Client UID fallback
                                             val cleanEmailStr = validEmail.lowercase().replace(Regex("[^a-z0-9]"), "")
                                             val clientUid = "usr_" + cleanEmailStr
                                             proceedWithUser(clientUid, name, validEmail, photoUrl)
@@ -239,7 +233,6 @@ class LoginActivity : AppCompatActivity() {
         signInProgressBar.visibility = View.VISIBLE
         googleSignInBtn.isEnabled = false
 
-        // Query Cloud Firestore to see if this user has already signed up
         com.jarvis.assistant.firebase.UserFirestoreHelper.fetchProfile(uid, email) { cloudProfile ->
             val finalName = cloudProfile?.name?.takeIf { it.isNotBlank() && it != "Jarvis User" } ?: name
             val finalPhone = cloudProfile?.phone?.takeIf { it.isNotBlank() } ?: ""
@@ -249,7 +242,6 @@ class LoginActivity : AppCompatActivity() {
             val prefs = getSharedPreferences("jarvis_prefs", MODE_PRIVATE)
 
             if (cloudProfile != null && hasCompleteProfile) {
-                // Existing user: Directly synchronize from Firebase Firestore!
                 com.jarvis.assistant.firebase.UserFirestoreHelper.syncToLocalPrefs(this@LoginActivity, cloudProfile)
                 com.jarvis.assistant.firebase.UserFirestoreHelper.updateLastLogin(cloudProfile.uid.ifBlank { uid })
 
@@ -257,7 +249,6 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this@LoginActivity, "Welcome back to JARVIS, $finalName!", Toast.LENGTH_SHORT).show()
                 launchMainActivity()
             } else {
-                // First-time or incomplete user: Save what we have and proceed to setup
                 prefs.edit()
                     .putBoolean("is_authenticated", true)
                     .putString("user_uid", uid)
