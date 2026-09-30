@@ -12,7 +12,20 @@
           "package_name": "com.jarvis.assistant"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "458985654107-schbchf9os2jai9v65uece037pdmiv4a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jarvis.assistant",
+            "certificate_hash": "5ec1061c0492ac67835dc453de9458a9d5528a56"
+          }
+        },
+        {
+          "client_id": "458985654107-j9tnls725nq94v16b0cp1oe0v0a4sopg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC-av_S-SiV31nmCr6vY1QCJMIr1U5aHHc"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "458985654107-j9tnls725nq94v16b0cp1oe0v0a4sopg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
