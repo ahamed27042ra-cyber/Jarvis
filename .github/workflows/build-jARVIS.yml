@@ -2,7 +2,7 @@ name: Build JARVIS APK
 
 on:
   push:
-    branches: [main, tamil-language-final]
+    branches: [main, tamil-language-final, mcp-watchdog-loop]
   pull_request:
     branches: [main]
   workflow_dispatch:
