@@ -1,0 +1,1 @@
+Loop-mode build trigger. Local Termux chmod is unavailable through the current remote shell; GitHub Actions performs the executable-bit setup and APK build on Ubuntu.
