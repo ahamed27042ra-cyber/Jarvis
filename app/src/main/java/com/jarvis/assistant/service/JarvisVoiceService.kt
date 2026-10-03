@@ -996,40 +996,48 @@ class JarvisVoiceService : Service() {
 
     fun ensureSessionActive() {
         if (isSessionStarted && geminiLive?.isConnected() == true) return
+
         val prefs = getSharedPreferences("jarvis_prefs", Context.MODE_PRIVATE)
-        val apiKey = cachedApiKey.ifBlank {
-            prefs.getString("cached_api_key", "") ?: ""
-        }.ifBlank {
-            com.jarvis.assistant.util.EnvLoader.getApiKey(this)
+
+        var apiKey = cachedApiKey
+        if (apiKey.isBlank()) apiKey = prefs.getString("cached_api_key", "") ?: ""
+        if (apiKey.isBlank()) apiKey = com.jarvis.assistant.util.EnvLoader.getApiKey(this)
+
+        var model = cachedModelString
+        if (model.isBlank()) {
+            model = prefs.getString(
+                "cached_model",
+                "models/gemini-3.1-flash-live-preview"
+            ) ?: "models/gemini-3.1-flash-live-preview"
         }
-        val model = cachedModelString.ifBlank {
-            prefs.getString("cached_model", "models/gemini-3.1-flash-live-preview") ?: "models/gemini-3.1-flash-live-preview"
-        }
-        var voice = prefs.getString("gemini_voice", "")?.ifBlank {
-            prefs.getString("cached_voice", "")
-        }?.ifBlank {
-            cachedVoiceName
-        }?.ifBlank { "Aoede" } ?: "Aoede"
-        if (voice.equals("Puck", ignoreCase = true) || voice.isBlank()) {
+
+        var voice = prefs.getString("gemini_voice", null) ?: ""
+        if (voice.isBlank()) voice = prefs.getString("cached_voice", "") ?: ""
+        if (voice.isBlank()) voice = cachedVoiceName
+        if (voice.isBlank() || voice.equals("Puck", ignoreCase = true)) {
             voice = "Aoede"
             try {
                 prefs.edit()
-                    .putString("gemini_voice", "Aoede")
-                    .putString("cached_voice", "Aoede")
+                    .putString("gemini_voice", voice)
+                    .putString("cached_voice", voice)
                     .putBoolean("is_female_voice", true)
                     .apply()
             } catch (_: Exception) {}
         }
-        val prompt = cachedSystemPrompt.ifBlank {
-            prefs.getString("cached_prompt", "") ?: ""
-        }.ifBlank {
+
+        var prompt = cachedSystemPrompt
+        if (prompt.isBlank()) prompt = prefs.getString("cached_prompt", "") ?: ""
+        if (prompt.isBlank()) {
             val userName = prefs.getString("user_name", "Boss") ?: "Boss"
             val personality = prefs.getString("personality_mode", "best_friend") ?: "best_friend"
             val maleVoices = setOf("puck", "charon", "fenrir", "orus", "arvind", "amartya", "dev")
             val isFemale = !maleVoices.contains(voice.lowercase().trim())
             try { prefs.edit().putBoolean("is_female_voice", isFemale).apply() } catch (_: Exception) {}
-            com.jarvis.assistant.util.PromptBuilder.buildSystemPrompt(userName, personality, isFemale, voice)
+            prompt = com.jarvis.assistant.util.PromptBuilder.buildSystemPrompt(
+                userName, personality, isFemale, voice
+            )
         }
+
         if (apiKey.isNotBlank()) {
             startSession(apiKey, model, prompt, voice)
         }
