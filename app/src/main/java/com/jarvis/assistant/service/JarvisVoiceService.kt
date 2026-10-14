@@ -333,7 +333,7 @@ class JarvisVoiceService : Service() {
             geminiLive?.setAudioTransportPaused(true)
             geminiLive?.disconnect(manual = false)
         } catch (e: Exception) {
-            Log.w("JarvisVoiceService", "Error disconnecting geminiLive on standby: ${e.message}")
+            Log.w("JarvisVoiceService", "Error disconnecting geminiLive on standby (${e.javaClass.simpleName})")
         }
 
         // 4. Finish standby bookkeeping
@@ -407,7 +407,7 @@ class JarvisVoiceService : Service() {
                 checkVoskPartialHypothesis(rec.partialResult)
             }
         } catch (e: Exception) {
-            Log.e("JarvisVoiceService", "Error in feedStandbyAudioChunk: ${e.message}")
+            Log.e("JarvisVoiceService", "Error in feedStandbyAudioChunk (${e.javaClass.simpleName})")
         }
     }
 
@@ -428,7 +428,7 @@ class JarvisVoiceService : Service() {
                 onWakeWordDetected()
             }
         } catch (e: Exception) {
-            Log.e("JarvisVoiceService", "Error in checkVoskHypothesis: ${e.message}")
+            Log.e("JarvisVoiceService", "Error in checkVoskHypothesis (${e.javaClass.simpleName})")
         }
     }
 
@@ -457,7 +457,7 @@ class JarvisVoiceService : Service() {
                 consecutivePartialWakeHits = 0
             }
         } catch (e: Exception) {
-            Log.e("JarvisVoiceService", "Error in checkVoskPartialHypothesis: ${e.message}")
+            Log.e("JarvisVoiceService", "Error in checkVoskPartialHypothesis (${e.javaClass.simpleName})")
         }
     }
 
@@ -1119,7 +1119,7 @@ class JarvisVoiceService : Service() {
             }
             Log.d("JarvisVoiceService", "Acquired partial WakeLock for background voice listening")
         } catch (e: Exception) {
-            Log.e("JarvisVoiceService", "Failed to acquire wakeLock: ${e.message}")
+            Log.e("JarvisVoiceService", "Failed to acquire wakeLock (${e.javaClass.simpleName})")
         }
     }
 
@@ -1130,7 +1130,7 @@ class JarvisVoiceService : Service() {
                 Log.d("JarvisVoiceService", "Released WakeLock")
             }
         } catch (e: Exception) {
-            Log.e("JarvisVoiceService", "Failed to release wakeLock: ${e.message}")
+            Log.e("JarvisVoiceService", "Failed to release wakeLock (${e.javaClass.simpleName})")
         }
         wakeLock = null
     }
@@ -1149,7 +1149,7 @@ class JarvisVoiceService : Service() {
                 startForeground(NOTIFICATION_ID, notification, serviceType)
                 Log.d("JarvisVoiceService", "startForeground elevated to MICROPHONE | SPECIAL_USE (types=$serviceType)")
             } catch (e: Exception) {
-                Log.w("JarvisVoiceService", "Could not elevate to MICROPHONE FGS type (likely background): ${e.message}")
+                Log.w("JarvisVoiceService", "Could not elevate to MICROPHONE FGS type (${e.javaClass.simpleName})")
                 try {
                     startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
                 } catch (e2: Exception) {
@@ -1167,7 +1167,7 @@ class JarvisVoiceService : Service() {
                 }
                 startForeground(NOTIFICATION_ID, notification, serviceType)
             } catch (e: Exception) {
-                Log.w("JarvisVoiceService", "startForeground MICROPHONE failed: ${e.message}")
+                Log.w("JarvisVoiceService", "startForeground MICROPHONE failed (${e.javaClass.simpleName})")
                 try {
                     startForeground(NOTIFICATION_ID, notification)
                 } catch (e2: Exception) {
@@ -2600,7 +2600,7 @@ class JarvisVoiceService : Service() {
                                     nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALARMS)
                                     dndSet = true
                                 } catch (e: Exception) {
-                                    Log.e("JarvisVoiceService", "Failed to set DND filter: ${e.message}")
+                                    Log.e("JarvisVoiceService", "Failed to set DND filter (${e.javaClass.simpleName})")
                                 }
                             }
                             val am = getSystemService(Context.AUDIO_SERVICE) as? AudioManager
@@ -2615,7 +2615,7 @@ class JarvisVoiceService : Service() {
                             try {
                                 com.jarvis.assistant.util.DeviceSettingsController.setWifiEnabled(this, false)
                             } catch (e: Exception) {
-                                Log.e("JarvisVoiceService", "Failed to toggle wifi off: ${e.message}")
+                                Log.e("JarvisVoiceService", "Failed to toggle wifi off (${e.javaClass.simpleName})")
                             }
                             // 5. Verify morning alarm
                             var alarmStatus = "No morning alarm is set"
@@ -2627,7 +2627,7 @@ class JarvisVoiceService : Service() {
                                     alarmStatus = "Morning alarm is verified for ${sdf.format(java.util.Date(nextAlarm.triggerTime))}"
                                 }
                             } catch (e: Exception) {
-                                Log.e("JarvisVoiceService", "Failed to check alarm: ${e.message}")
+                                Log.e("JarvisVoiceService", "Failed to check alarm (${e.javaClass.simpleName})")
                             }
 
                             val msg = "Good night routine executed, Sir. Brightness dimmed to 10%, volume set to 20%, silent mode activated, and Wi-Fi toggled off. $alarmStatus. Say: \"Good night Sir, have a restful sleep.\""
@@ -2657,7 +2657,7 @@ class JarvisVoiceService : Service() {
                             try {
                                 com.jarvis.assistant.util.AlarmTimerManager.setTimer(this, 45 * 60, "Pomodoro Focus Session")
                             } catch (e: Exception) {
-                                Log.e("JarvisVoiceService", "Failed to start focus timer: ${e.message}")
+                                Log.e("JarvisVoiceService", "Failed to start focus timer (${e.javaClass.simpleName})")
                             }
                             // 3. Start lo-fi music
                             try {
@@ -2770,9 +2770,9 @@ class JarvisVoiceService : Service() {
                         anyStreamSucceeded = true
                     } catch (e: SecurityException) {
                         // Typically thrown when Do Not Disturb / notification policy access blocks the change.
-                        Log.e("JarvisVoiceService", "Blocked setting stream $stream (likely DND policy): ${e.message}")
+                        Log.e("JarvisVoiceService", "Blocked setting stream $stream (likely DND policy: ${e.javaClass.simpleName})")
                     } catch (e: Exception) {
-                        Log.e("JarvisVoiceService", "Error setting stream $stream: ${e.message}")
+                        Log.e("JarvisVoiceService", "Error setting stream $stream (${e.javaClass.simpleName})")
                     }
                 }
                 if (!anyStreamSucceeded) hardFailure = "Do Not Disturb or a system policy is blocking volume changes."
@@ -2784,7 +2784,7 @@ class JarvisVoiceService : Service() {
                     audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, AudioManager.FLAG_SHOW_UI)
                     succeeded = true
                 } catch (e: SecurityException) {
-                    Log.e("JarvisVoiceService", "Blocked adjusting volume (likely DND policy): ${e.message}")
+                    Log.e("JarvisVoiceService", "Blocked adjusting volume (likely DND policy: ${e.javaClass.simpleName})")
                 }
                 try { audioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, dir, 0) } catch (_: Exception) {}
                 val curVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -2976,7 +2976,7 @@ class JarvisVoiceService : Service() {
                 }
                 startForeground(NOTIFICATION_ID, notification, serviceType)
             } catch (e: Exception) {
-                Log.e("JarvisVoiceService", "elevateToMediaProjectionForegroundService failed: ${e.message}", e)
+                Log.e("JarvisVoiceService", "elevateToMediaProjectionForegroundService failed (${e.javaClass.simpleName})")
             }
         } else {
             startForeground(NOTIFICATION_ID, notification)
@@ -3143,7 +3143,7 @@ class JarvisVoiceService : Service() {
                 Log.i("JarvisVoiceService", "Announcing incoming WhatsApp notification via Gemini Live")
                 geminiLive?.sendText(prompt, turnComplete = true)
             } catch (e: Exception) {
-                Log.e("JarvisVoiceService", "Failed to forward WhatsApp notification to Gemini", e)
+                Log.e("JarvisVoiceService", "Failed to forward WhatsApp notification to Gemini (${e.javaClass.simpleName})")
             }
         }
     }
@@ -3464,7 +3464,7 @@ class JarvisVoiceService : Service() {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             notificationManager?.notify(NOTIFICATION_ID, buildNotification())
         } catch (e: Exception) {
-            Log.w("JarvisVoiceService", "Failed to update notification: ${e.message}")
+            Log.w("JarvisVoiceService", "Failed to update notification (${e.javaClass.simpleName})")
         }
     }
 
