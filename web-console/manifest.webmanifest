@@ -1,0 +1,10 @@
+{
+  "name": "JARVIS AI Control Center",
+  "short_name": "JARVIS",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#070b16",
+  "theme_color": "#070b16",
+  "description": "JARVIS web companion starter",
+  "icons": []
+}
