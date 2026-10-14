@@ -87,7 +87,7 @@ class GeminiLiveClient(
 
     fun connect() {
         isManuallyClosed = false
-        Log.i(TAG, "connect() invoked for model=$modelName, key len=${apiKey.length}")
+        Log.i(TAG, "connect() invoked for model=$modelName; API key configured=${apiKey.isNotBlank()}")
         val url = "$BASE_WS_URL?key=$apiKey"
         val request = Request.Builder().url(url).build()
 
@@ -1473,7 +1473,7 @@ class GeminiLiveClient(
                 val t = it.optString("text", "")
                 if (t.isNotEmpty()) {
                     lastInteractionTimeMs = System.currentTimeMillis()
-                    Log.i(TAG, "Gemini Live output transcript: '$t'")
+                    Log.d(TAG, "Gemini Live output transcript received (content redacted)")
                     onOutputTranscript?.invoke(t)
                 }
             }
@@ -1484,7 +1484,7 @@ class GeminiLiveClient(
                 val t = it.optString("text", "")
                 if (t.isNotEmpty()) {
                     lastInteractionTimeMs = System.currentTimeMillis()
-                    Log.i(TAG, "Gemini Live input transcript: '$t'")
+                    Log.d(TAG, "Gemini Live input transcript received (content redacted)")
                     onInputTranscript?.invoke(t)
                 }
             }
