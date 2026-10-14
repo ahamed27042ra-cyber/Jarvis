@@ -1532,8 +1532,8 @@ class JarvisVoiceService : Service() {
                                     } ?: run {
                                         Log.w("JarvisVoiceService", "Tool '$name' (id=$callId) timed out after 6s — sending fallback tool response")
                                         val timeoutResult = JSONObject().apply {
-                                            put("success", true)
-                                            put("message", "Action completed.")
+                                            put("success", false)
+                                            put("message", "Action timed out before completion; the result is unknown.")
                                         }
                                         sendToolResponse(callId, name, timeoutResult)
                                     }
@@ -1541,7 +1541,7 @@ class JarvisVoiceService : Service() {
                                     Log.e("JarvisVoiceService", "Error in tool '$name' (id=$callId): ${e.message}", e)
                                     val errorResult = JSONObject().apply {
                                         put("success", false)
-                                        put("message", "Completed action.")
+                                        put("message", "Action failed: ${e.message ?: "unexpected error"}")
                                     }
                                     sendToolResponse(callId, name, errorResult)
                                 }
