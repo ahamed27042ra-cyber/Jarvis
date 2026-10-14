@@ -5,10 +5,10 @@
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-blue.svg)](https://kotlinlang.org)
 [![Gradle](https://img.shields.io/badge/Gradle-8.4-brightgreen.svg)](https://gradle.org)
-[![Version](https://img.shields.io/badge/Release-v1.8.7-orange.svg)](version.json)
+[![Version](https://img.shields.io/badge/Release-v1.8.8-orange.svg)](version.json)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](#)
 
-JARVIS AI is a next-generation autonomous Android AI assistant and system automation suite powered by Google Gemini Live multi-modal streaming, Firebase Realtime Database cloud telemetry, and an advanced Accessibility & Floating Overlay architecture.
+JARVIS AI is an Android AI-assistant project with Kotlin-based voice, vision, accessibility, and automation components. Gemini Live, Firebase, and device-control integrations require valid project configuration, runtime permissions, and real-device testing before they can be considered operational.
 
 ---
 
@@ -16,8 +16,8 @@ JARVIS AI is a next-generation autonomous Android AI assistant and system automa
 
 The project is structured into three primary components:
 1. **Core Android Native Application (`/app`)**: Kotlin-based Android application orchestrating voice, vision, accessibility actions, and device-level operations.
-2. **Real-time Admin Web Console (`/admin-panel`)**: Lightweight, high-performance web dashboard for real-time mobile screen mirroring, command dispatching, and system monitoring.
-3. **OTA Release Distribution Engine**: GitHub Raw & in-app automatic update delivery system with real-time version handshakes (`version.json`).
+2. **Web console (`/admin-panel`)**: A static web preview. Live screen mirroring, command dispatch, and remote monitoring are not verified as connected to a secure backend.
+3. **Update flow (`version.json`)**: Update-related code is present; a secure production OTA release flow has not been independently verified.
 
 ```
 Jarvis-Ai/
@@ -54,12 +54,12 @@ Jarvis-Ai/
 
 ## ⚡ Core Capabilities
 
-- **🎙️ Real-time Bi-directional Gemini Live**: Direct WebSocket audio streaming with ultra-low latency conversational responses.
-- **👁️ Computer Vision & Live Screen Mirroring**: 5-FPS continuous real-time mobile screen streaming to the Admin Panel via Firebase base64 chunks.
-- **🦾 Deep OS Accessibility Automation**: Autonomous touch, swipe, click, app launching, WhatsApp message dispatch, and contact caller automation.
+- **🎙️ Gemini Live integration (unverified)**: WebSocket audio-streaming code is present; working credentials and on-device lifecycle tests are still required.
+- **👁️ Vision and screen-streaming components (unverified)**: Camera/screen capture requires explicit Android permissions; a live, secure console connection has not been verified.
+- **🦾 Accessibility automation components**: Device actions depend on user-enabled accessibility permissions and must be tested on a physical device. Consequential actions should require explicit user confirmation.
 - **🔮 3D Reactive Holographic Orb**: Interactive Three.js WebGL particle orb with sound-wave reactive audio animations.
-- **🛡️ Secure Key & Credential Management**: Hardware-backed AES-256 encrypted SharedPreferences storage.
-- **🔄 Seamless In-App OTA Updates**: Automatic update checks against `version.json` with background download and package installer handshakes.
+- **🛡️ Credential storage code**: Review configuration and verify runtime key handling before making production security claims.
+- **🔄 Update components**: Update checks and installer flows require device testing; this repository does not currently establish a production-signed OTA release.
 
 ---
 
