@@ -42,13 +42,18 @@ object OpenRouterWebsiteGenerator {
     )
 
     fun getApiKey(context: Context): String {
-        val prefs = context.getSharedPreferences(JarvisApplication.PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(PREF_OPENROUTER_KEY, "") ?: ""
+        return com.jarvis.assistant.security.EncryptedPrefsManager.getOrMigrateSecureString(
+            context, JarvisApplication.PREFS_NAME, PREF_OPENROUTER_KEY
+        )
     }
 
     fun saveApiKey(context: Context, apiKey: String) {
-        val prefs = context.getSharedPreferences(JarvisApplication.PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(PREF_OPENROUTER_KEY, apiKey.trim()).apply()
+        // Persist securely first; remove any legacy plaintext copy only after the write succeeds.
+        com.jarvis.assistant.security.EncryptedPrefsManager.putSecureString(
+            context, PREF_OPENROUTER_KEY, apiKey.trim()
+        )
+        context.getSharedPreferences(JarvisApplication.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().remove(PREF_OPENROUTER_KEY).apply()
     }
 
     fun getSelectedModel(context: Context): String {
