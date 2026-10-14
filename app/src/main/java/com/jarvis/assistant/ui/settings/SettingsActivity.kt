@@ -479,7 +479,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updateApiKeyFieldUI() {
         geminiKeyContainer.visibility = View.VISIBLE
-        val p = prefs()
         val savedGemini = EnvLoader.getApiKey(this)
         apiKeyInput.setText(savedGemini)
     }
