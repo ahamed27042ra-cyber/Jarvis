@@ -46,7 +46,7 @@ class CrashRecoveryActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        // Prevent going back to the crashed state
-        finishAffinity()
+        // Use standard back dispatch so the activity closes through Android's normal lifecycle.
+        super.onBackPressed()
     }
 }
