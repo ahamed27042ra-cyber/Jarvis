@@ -84,7 +84,7 @@ class JarvisNotificationListenerService : NotificationListenerService() {
 
                 if (isLastMsgFromSelf) {
                     // This notification update was caused by our own reply! Do NOT announce it.
-                    Log.d(TAG, "Ignoring self-sent outgoing message: '${lastMsg.text}'")
+                    Log.d(TAG, "Ignoring self-sent outgoing message")
                     isOutgoingMessage = true
                 } else {
                     // The latest message is indeed from an external sender
@@ -103,14 +103,14 @@ class JarvisNotificationListenerService : NotificationListenerService() {
                 }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "MessagingStyle extraction exception: ${e.message}")
+            Log.w(TAG, "MessagingStyle extraction failed (${e.javaClass.simpleName})")
         }
 
         if (isOutgoingMessage) return
 
         // Check if this text was recently sent as a direct reply by JARVIS
         if (WhatsAppNotificationManager.isRecentlySentReply(text)) {
-            Log.d(TAG, "Ignoring recently sent WhatsApp direct reply: '$text'")
+            Log.d(TAG, "Ignoring recently sent WhatsApp direct reply")
             return
         }
 
@@ -154,7 +154,7 @@ class JarvisNotificationListenerService : NotificationListenerService() {
         synchronized(announcedMessages) {
             val lastTime = announcedMessages[dedupKey]
             if (lastTime != null && (now - lastTime) < DEDUP_WINDOW_MS) {
-                Log.d(TAG, "Suppressed duplicate WhatsApp notification for: '$dedupKey' (${now - lastTime}ms ago)")
+                Log.d(TAG, "Suppressed duplicate WhatsApp notification (${now - lastTime}ms ago)")
                 return
             }
             announcedMessages[dedupKey] = now
@@ -182,7 +182,7 @@ class JarvisNotificationListenerService : NotificationListenerService() {
             }
         }
 
-        Log.i(TAG, "Incoming WhatsApp from: '$title' text: '$text' (canReply=${replyAction != null || frameworkAction != null})")
+        Log.i(TAG, "Incoming WhatsApp notification received (canReply=${replyAction != null || frameworkAction != null})")
 
         // Store message state for voice direct replies
         WhatsAppNotificationManager.onNewMessage(
