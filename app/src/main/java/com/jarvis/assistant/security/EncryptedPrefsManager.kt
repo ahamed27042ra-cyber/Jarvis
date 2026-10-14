@@ -64,7 +64,10 @@ object EncryptedPrefsManager {
     }
 
     fun putSecureString(context: Context, key: String, value: String) {
-        getSecurePreferences(context).edit().putString(key, value).apply()
+        val persisted = getSecurePreferences(context).edit().putString(key, value).commit()
+        if (!persisted) {
+            throw IllegalStateException("Could not persist credential securely")
+        }
     }
 
     fun getSecureString(context: Context, key: String, defaultValue: String = ""): String {
