@@ -29,8 +29,9 @@ object EncryptedPrefsManager {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize EncryptedSharedPreferences, falling back to private prefs", e)
-            context.getSharedPreferences(ENCRYPTED_PREFS_FILENAME, Context.MODE_PRIVATE)
+            // Fail closed: do not silently downgrade credentials to unencrypted storage.
+            Log.e(TAG, "Encrypted preferences unavailable; refusing plaintext fallback", e)
+            throw IllegalStateException("JARVIS secure storage is unavailable on this device", e)
         }
     }
 
