@@ -421,9 +421,9 @@ class JarvisVoiceService : Service() {
             val clean = text.trim().lowercase(Locale.ROOT)
             if (clean.isEmpty() || clean == "[unk]") return
 
-            Log.i("JarvisVoiceService", "Vosk standby final hypothesis: '$clean'")
+            Log.i("JarvisVoiceService", "Vosk standby final hypothesis received (content redacted)")
             if (containsStandbyWakeWord(clean)) {
-                Log.i("JarvisVoiceService", "Vosk confirmed strict wake word (final): '$clean'")
+                Log.i("JarvisVoiceService", "Vosk confirmed strict wake word (final)")
                 try { voskRecognizer?.reset() } catch (_: Exception) {}
                 onWakeWordDetected()
             }
@@ -446,10 +446,10 @@ class JarvisVoiceService : Service() {
 
             if (containsStandbyWakeWord(partial)) {
                 consecutivePartialWakeHits++
-                Log.d("JarvisVoiceService", "Vosk partial wake hit ($consecutivePartialWakeHits/$REQUIRED_PARTIAL_HITS): '$partial'")
+                Log.d("JarvisVoiceService", "Vosk partial wake hit ($consecutivePartialWakeHits/$REQUIRED_PARTIAL_HITS; content redacted)")
                 if (consecutivePartialWakeHits >= REQUIRED_PARTIAL_HITS) {
                     consecutivePartialWakeHits = 0
-                    Log.i("JarvisVoiceService", "Vosk confirmed strict wake word (debounced partial): '$partial'")
+                    Log.i("JarvisVoiceService", "Vosk confirmed strict wake word (debounced partial)")
                     try { voskRecognizer?.reset() } catch (_: Exception) {}
                     onWakeWordDetected()
                 }
@@ -769,7 +769,7 @@ class JarvisVoiceService : Service() {
 
         val startPrompt = "Please speak out loud right now in your natural voice. Say: 'Screen share on ho gaya hai $userName, main aapki screen $dekteWord.' Do not call any tools."
         geminiLive?.sendText(startPrompt, turnComplete = true)
-        Log.i("JarvisVoiceService", "triggerScreenShareGreeting: dispatched spoken prompt to Gemini Live: $startPrompt")
+        Log.i("JarvisVoiceService", "triggerScreenShareGreeting: dispatched spoken prompt to Gemini Live (content redacted)")
     }
 
     fun triggerWakeGreeting() {
@@ -779,7 +779,7 @@ class JarvisVoiceService : Service() {
             val userName = prefs.getString("user_name", "Sir")?.ifBlank { "Sir" } ?: "Sir"
 
             val greetingPrompt = "Please respond out loud right now. Say: 'Hi $userName, how can I help you?' Keep it to one short sentence. Do not call any tools."
-            Log.i("JarvisVoiceService", "Triggering wake greeting for $userName: $greetingPrompt")
+            Log.i("JarvisVoiceService", "Triggering wake greeting (personal content redacted)")
 
             if (geminiLive?.isSocketHealthy() == true) {
                 geminiLive?.sendText(greetingPrompt)
@@ -806,7 +806,7 @@ class JarvisVoiceService : Service() {
             val userName = prefs.getString("user_name", "Sir")?.ifBlank { "Sir" } ?: "Sir"
 
             val greetingPrompt = "Please greet the user out loud right now. Say: 'Hi $userName, how can I help you?' Keep it to one short sentence. Do not call any tools."
-            Log.i("JarvisVoiceService", "Triggering app-open greeting for $userName: $greetingPrompt")
+            Log.i("JarvisVoiceService", "Triggering app-open greeting (personal content redacted)")
             geminiLive?.sendText(greetingPrompt)
         }
     }
@@ -3072,7 +3072,7 @@ class JarvisVoiceService : Service() {
 
             val stopPrompt = "Please speak out loud right now in your natural voice. Say: 'Screen share band ho gaya hai $userName.' Do not call any tools."
             geminiLive?.sendText(stopPrompt, turnComplete = true)
-            Log.i("JarvisVoiceService", "stopScreenShare: spoken prompt dispatched to Gemini Live: $stopPrompt")
+            Log.i("JarvisVoiceService", "stopScreenShare: spoken prompt dispatched to Gemini Live (content redacted)")
         }
     }
 
