@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
 import com.google.android.material.button.MaterialButton
 import com.jarvis.assistant.R
 import com.jarvis.assistant.ui.main.MainActivity
@@ -23,6 +24,13 @@ class CrashRecoveryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crash_recovery)
+
+        // Leave the crashed task instead of returning to the failed screen.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAffinity()
+            }
+        })
 
         // Extract the friendly crash reason from the intent (if available)
         val crashReason = intent.getStringExtra("crash_reason") ?: ""
@@ -45,8 +53,4 @@ class CrashRecoveryActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        // Use standard back dispatch so the activity closes through Android's normal lifecycle.
-        super.onBackPressed()
-    }
 }
