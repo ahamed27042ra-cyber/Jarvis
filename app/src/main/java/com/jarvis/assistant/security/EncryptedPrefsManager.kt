@@ -35,6 +35,29 @@ object EncryptedPrefsManager {
         }
     }
 
+    /**
+     * Reads an encrypted value first. If absent, migrates a legacy value from the named
+     * preferences file and removes the plaintext copy only after the encrypted write succeeds.
+     * If secure storage is unavailable, the exception is intentionally propagated (fail closed).
+     */
+    fun getOrMigrateSecureString(
+        context: Context,
+        legacyPreferencesName: String,
+        key: String,
+        defaultValue: String = ""
+    ): String {
+        val secureValue = getSecureString(context, key, "")
+        if (secureValue.isNotBlank()) return secureValue
+
+        val legacyPrefs = context.getSharedPreferences(legacyPreferencesName, Context.MODE_PRIVATE)
+        val legacyValue = legacyPrefs.getString(key, null)?.trim()
+        if (legacyValue.isNullOrBlank()) return defaultValue
+
+        putSecureString(context, key, legacyValue)
+        legacyPrefs.edit().remove(key).apply()
+        return legacyValue
+    }
+
     fun putSecureString(context: Context, key: String, value: String) {
         getSecurePreferences(context).edit().putString(key, value).apply()
     }
