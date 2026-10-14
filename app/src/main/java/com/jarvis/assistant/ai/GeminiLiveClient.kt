@@ -1273,7 +1273,7 @@ class GeminiLiveClient(
                 consecutiveSendFailures = 0
             }
         } catch (e: Exception) {
-            Log.e(TAG, "sendAudioChunk failed: ${e.message}")
+            Log.e(TAG, "sendAudioChunk failed (${e.javaClass.simpleName})")
         }
     }
 
@@ -1295,7 +1295,7 @@ class GeminiLiveClient(
                 Log.d(TAG, "sendVideoFrame: sent ${jpegBytes.size} bytes JPEG frame to Gemini Live")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "sendVideoFrame failed: ${e.message}")
+            Log.e(TAG, "sendVideoFrame failed (${e.javaClass.simpleName})")
         }
     }
 
@@ -1340,7 +1340,7 @@ class GeminiLiveClient(
             }
             webSocket?.send(msg.toString())
         } catch (e: Exception) {
-            Log.e(TAG, "sendInterrupt failed: ${e.message}")
+            Log.e(TAG, "sendInterrupt failed (${e.javaClass.simpleName})")
         }
     }
 
@@ -1369,7 +1369,7 @@ class GeminiLiveClient(
     private fun handleServerMessage(text: String) {
         try {
             lastServerMessageTimeMs = System.currentTimeMillis()
-            Log.i(TAG, "handleServerMessage: ${text.take(160)}")
+            Log.i(TAG, "Gemini Live server message received")
             val json = JSONObject(text)
 
             if (json.has("setupComplete") || json.has("setup_complete")) {
@@ -1382,7 +1382,7 @@ class GeminiLiveClient(
 
                 while (!pendingTextQueue.isEmpty()) {
                     val (queuedText, queuedTurnComplete) = pendingTextQueue.poll() ?: break
-                    Log.i(TAG, "Flushing queued text turn after setupComplete: '$queuedText'")
+                    Log.i(TAG, "Flushing queued text turn after setupComplete")
                     sendText(queuedText, queuedTurnComplete)
                 }
                 return
@@ -1425,9 +1425,9 @@ class GeminiLiveClient(
             val errorObj = json.optJSONObject("error")
             if (errorObj != null) {
                 val code = errorObj.optInt("code", 0)
-                val message = errorObj.optString("message", "Unknown server error")
+                val message = "The Gemini service returned an error. Check configuration and try again."
                 val status = errorObj.optString("status", "")
-                val fullError = "Gemini Error [$code $status]: $message"
+                val fullError = "Gemini service error [$code $status]."
                 Log.e(TAG, fullError)
                 onError?.invoke(fullError)
                 cleanupTimers()
@@ -1515,8 +1515,8 @@ class GeminiLiveClient(
                 triggerDebouncedTurnComplete()
             }
         } catch (e: Exception) {
-            val parseError = "Failed to parse server message: ${e.javaClass.simpleName}: ${e.message}"
-            Log.e(TAG, parseError, e)
+            val parseError = "Failed to parse Gemini server message (${e.javaClass.simpleName})."
+            Log.e(TAG, parseError)
             onError?.invoke(parseError)
         }
     }
