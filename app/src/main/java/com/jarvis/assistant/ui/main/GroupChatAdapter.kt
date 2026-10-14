@@ -63,7 +63,9 @@ class GroupChatAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val msg = messages[position]
+        val currentPosition = holder.bindingAdapterPosition
+        if (currentPosition == RecyclerView.NO_POSITION || currentPosition !in messages.indices) return
+        val msg = messages[currentPosition]
         val formattedTime = timeFormat.format(Date(msg.timestamp))
 
         when (holder) {
@@ -85,9 +87,8 @@ class GroupChatAdapter(
             }
         }
 
-        // Resolve the holder's current position for animation; RecyclerView may move it.
-        val currentPosition = holder.bindingAdapterPosition
-        if (currentPosition != RecyclerView.NO_POSITION && currentPosition > lastAnimatedPosition) {
+        // Use the current holder position because RecyclerView may move items.
+        if (currentPosition > lastAnimatedPosition) {
             lastAnimatedPosition = currentPosition
             AnimUtils.entranceAnimate(holder.itemView)
         } else {
