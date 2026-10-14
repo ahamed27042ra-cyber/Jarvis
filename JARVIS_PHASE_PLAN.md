@@ -15,11 +15,11 @@ This file is the implementation checklist for completing JARVIS in small, verifi
 - [x] Android release APK build succeeds in GitHub Actions.
 - [x] Web console deploys to GitHub Pages and the updated status text is live.
 - [ ] Record build, signing, dependency, and artifact results for each run.
-- [ ] Add automated static checks for Android and web assets.
+- [x] Add automated static checks for web assets and secret-like strings; Android unit-test/lint tasks added to CI and pending first verified result.
 
 ## Phase 2 — Authentication and secrets
 - [ ] Audit Firebase project configuration and Google Sign-In OAuth client IDs.
-- [ ] Verify login success/failure/cancel flows; remove any path that treats a cached account as a fresh successful sign-in unless token validation succeeds.
+- [x] Remove cached-account fallback after a failed Google Sign-In result.\n- [ ] Verify login success/failure/cancel flows on a configured Firebase project and real device.
 - [ ] Confirm Firebase Authentication is enabled and authorized domains are correct.
 - [ ] Keep provider/API secrets server-side; verify public repository and APK contain no private secrets.
 - [ ] Test unauthenticated and unauthorized access.
