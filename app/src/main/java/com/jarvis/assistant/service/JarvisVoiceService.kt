@@ -2703,10 +2703,11 @@ class JarvisVoiceService : Service() {
                 }
             }
         } catch (e: Exception) {
-            val errorDetail = "Tool '$name' failed: ${e.javaClass.simpleName}: ${e.message}"
-            android.util.Log.e("JarvisVoiceService", errorDetail, e)
+            // Keep exception details out of model responses and routine logs; they may contain user data.
+            val errorDetail = "Tool '$name' failed (${e.javaClass.simpleName})."
+            android.util.Log.e("JarvisVoiceService", errorDetail)
             result.put("success", false)
-            result.put("message", errorDetail)
+            result.put("message", "The action failed unexpectedly. Please try again.")
             dispatchToListeners { it.onError(errorDetail) }
         }
         sendToolResponse(callId, name, result)
