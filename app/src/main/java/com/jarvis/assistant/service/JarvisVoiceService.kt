@@ -994,11 +994,17 @@ class JarvisVoiceService : Service() {
     fun ensureSessionActive() {
         if (isSessionStarted && geminiLive?.isConnected() == true) return
         val prefs = getSharedPreferences("jarvis_prefs", Context.MODE_PRIVATE)
-        val apiKey = cachedApiKey.ifBlank {
-            com.jarvis.assistant.security.EncryptedPrefsManager.getOrMigrateSecureString(
-                this, "jarvis_prefs", "cached_api_key"
-            )
-        }.ifBlank {
+        val secureCachedKey = try {
+            cachedApiKey.ifBlank {
+                com.jarvis.assistant.security.EncryptedPrefsManager.getOrMigrateSecureString(
+                    this, "jarvis_prefs", "cached_api_key"
+                )
+            }
+        } catch (e: IllegalStateException) {
+            Log.e("JarvisVoiceService", "Secure storage unavailable; cannot load cached API key", e)
+            ""
+        }
+        val apiKey = secureCachedKey.ifBlank {
             com.jarvis.assistant.util.EnvLoader.getApiKey(this)
         }
         val model = cachedModelString.ifBlank {
