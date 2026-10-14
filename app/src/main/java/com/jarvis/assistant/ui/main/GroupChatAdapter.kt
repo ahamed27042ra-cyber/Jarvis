@@ -85,9 +85,10 @@ class GroupChatAdapter(
             }
         }
 
-        // Entrance animation for new messages
-        if (position > lastAnimatedPosition) {
-            lastAnimatedPosition = position
+        // Resolve the holder's current position for animation; RecyclerView may move it.
+        val currentPosition = holder.bindingAdapterPosition
+        if (currentPosition != RecyclerView.NO_POSITION && currentPosition > lastAnimatedPosition) {
+            lastAnimatedPosition = currentPosition
             AnimUtils.entranceAnimate(holder.itemView)
         } else {
             holder.itemView.animate().cancel()
