@@ -1,3 +1,5 @@
+> **Current verification status (2026-10-14):** GitHub Actions builds the Android APK and deploys a static web-console preview. The public web console is **not** a live admin backend; Firebase authentication, Gemini connectivity, remote phone control, and end-to-end automation have not yet been verified on a configured account and physical device. CI success means build/package checks passed, not that every feature works. The workflow-generated release APK currently uses the debug signing configuration and is **not a production-signed release**. See [JARVIS_PHASE_PLAN.md](JARVIS_PHASE_PLAN.md) for the tracked implementation phases and blockers.
+>
 # 🤖 JARVIS AI - Autonomous Android Intelligence Assistant
 
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-green.svg)](https://developer.android.com)
