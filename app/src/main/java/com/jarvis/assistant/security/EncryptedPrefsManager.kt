@@ -53,8 +53,13 @@ object EncryptedPrefsManager {
         val legacyValue = legacyPrefs.getString(key, null)?.trim()
         if (legacyValue.isNullOrBlank()) return defaultValue
 
-        putSecureString(context, key, legacyValue)
-        legacyPrefs.edit().remove(key).apply()
+        // Migration must reach disk before deleting the only legacy copy. apply() is
+        // asynchronous, so use commit() here and fail closed if persistence is unsuccessful.
+        val persisted = getSecurePreferences(context).edit().putString(key, legacyValue).commit()
+        if (!persisted) {
+            throw IllegalStateException("Could not persist migrated credential securely")
+        }
+        legacyPrefs.edit().remove(key).commit()
         return legacyValue
     }
 
