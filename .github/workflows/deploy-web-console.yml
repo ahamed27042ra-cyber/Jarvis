@@ -27,6 +27,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validate web console assets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json
+
+          root = Path("web-console")
+          required = ["index.html", "manifest.webmanifest", "sw.js", "icon.svg"]
+          for name in required:
+              path = root / name
+              assert path.is_file() and path.stat().st_size > 0, f"Missing or empty asset: {path}"
+
+          html = (root / "index.html").read_text(encoding="utf-8")
+          manifest = json.loads((root / "manifest.webmanifest").read_text(encoding="utf-8"))
+          worker = (root / "sw.js").read_text(encoding="utf-8")
+
+          assert "<!doctype html>" in html.lower(), "index.html must declare HTML5 doctype"
+          assert "<title>" in html.lower(), "index.html must include a page title"
+          assert "manifest.webmanifest" in html, "index.html must link the PWA manifest"
+          assert manifest.get("name") and manifest.get("start_url"), "PWA manifest needs name and start_url"
+          assert "addEventListener" in worker and "fetch" in worker, "Service worker fetch handler is missing"
+          assert "Status verified: this web console is a static preview." in html, "Preview/connection status notice is missing"
+          assert not re.search(r"(AIza[0-9A-Za-z_-]{30,}|-----BEGIN (?:RSA |EC )?PRIVATE KEY-----)", html + worker), "Possible secret found in public web assets"
+          print("Web console validation passed: required assets, HTML, manifest, service worker, truthful status, and secret scan.")
+          PY
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Prepare site artifact
