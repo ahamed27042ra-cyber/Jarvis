@@ -152,7 +152,7 @@ class JarvisVoiceService : Service() {
             try {
                 action(l)
             } catch (e: Exception) {
-                Log.e("JarvisVoiceService", "Error notifying listener", e)
+                Log.e("JarvisVoiceService", "Error notifying listener (${e.javaClass.simpleName})")
             }
         }
     }
@@ -379,7 +379,7 @@ class JarvisVoiceService : Service() {
                 Log.i("JarvisVoiceService", "Direct Vosk continuous Recognizer initialized with strict wake grammar and distractors")
                 rec
             } catch (e: Exception) {
-                Log.e("JarvisVoiceService", "Failed to create Vosk Recognizer: ${e.message}", e)
+                Log.e("JarvisVoiceService", "Failed to create Vosk Recognizer (${e.javaClass.simpleName})")
                 null
             }
         }
@@ -1054,7 +1054,7 @@ class JarvisVoiceService : Service() {
                 dispatchToListeners { it.onShutdownRequested() }
                 stopForeground(STOP_FOREGROUND_REMOVE)
             } catch (e: Exception) {
-                Log.e("JarvisVoiceService", "Error during performShutdownIntent", e)
+                Log.e("JarvisVoiceService", "Error during performShutdownIntent (${e.javaClass.simpleName})")
             }
         }
     }
@@ -1538,7 +1538,7 @@ class JarvisVoiceService : Service() {
                                         sendToolResponse(callId, name, timeoutResult)
                                     }
                                 } catch (e: Exception) {
-                                    Log.e("JarvisVoiceService", "Error in tool '$name' (id=$callId): ${e.message}", e)
+                                    Log.e("JarvisVoiceService", "Error in tool '$name' (id=$callId): ${e.javaClass.simpleName}")
                                     val errorResult = JSONObject().apply {
                                         put("success", false)
                                         put("message", "Action failed: ${e.message ?: "unexpected error"}")
@@ -2965,7 +2965,7 @@ class JarvisVoiceService : Service() {
                 startForeground(NOTIFICATION_ID, notification, serviceType)
                 Log.d("JarvisVoiceService", "startForeground elevated to MEDIA_PROJECTION (types=$serviceType)")
             } catch (e: Exception) {
-                Log.e("JarvisVoiceService", "elevateToMediaProjectionForegroundService failed: ${e.message}", e)
+                Log.e("JarvisVoiceService", "elevateToMediaProjectionForegroundService failed (${e.javaClass.simpleName})")
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
@@ -3040,7 +3040,7 @@ class JarvisVoiceService : Service() {
         } catch (e: Throwable) {
             // Catch ALL throwables including SecurityException, IllegalStateException, RuntimeException
             // from MediaProjection failures. Log and gracefully stop instead of crashing the entire app.
-            Log.e("JarvisVoiceService", "startScreenShare failed: ${e.message}", e)
+            Log.e("JarvisVoiceService", "startScreenShare failed (${e.javaClass.simpleName})")
             stopScreenShare()
             // Notify user through Gemini voice that screen sharing couldn't start
             toolScope.launch {
@@ -3107,7 +3107,7 @@ class JarvisVoiceService : Service() {
         }
         lastAnnouncedWhatsAppKey = cleanKey
         lastAnnouncedWhatsAppTime = now
-        Log.i("JarvisVoiceService", "Incoming WhatsApp from $sender: $text")
+        Log.i("JarvisVoiceService", "Incoming WhatsApp notification received")
         toolScope.launch {
             try {
                 // 1. Acquire WakeLock so CPU does not sleep
@@ -3140,7 +3140,7 @@ class JarvisVoiceService : Service() {
                     "Out loud in your natural charismatic voice, announce this message to the user right now: " +
                     "\"$sender ka message aaya hai: '$text'. Kya reply karna hai?\" " +
                     "(or in English if user prefers: \"$sender sent you a message: '$text'. Would you like me to reply?\"). Do not call any tools right now."
-                Log.i("JarvisVoiceService", "Announcing incoming WhatsApp message via Gemini Live: $prompt")
+                Log.i("JarvisVoiceService", "Announcing incoming WhatsApp notification via Gemini Live")
                 geminiLive?.sendText(prompt, turnComplete = true)
             } catch (e: Exception) {
                 Log.e("JarvisVoiceService", "Failed to forward WhatsApp notification to Gemini", e)
