@@ -1499,7 +1499,7 @@ class JarvisVoiceService : Service() {
                 }
                 onError = { msg -> dispatchToListeners { it.onError(msg) } }
                 onToolCall = { name, args, callId ->
-                    Log.i("JarvisVoiceService", "onToolCall received: '$name', args=$args (standby=${_isStandby.value}, state=$conversationState, hasWake=$currentTurnHasWakeWord, followUp=$isInFollowUpWindow, fg=$isAppInForeground)")
+                    Log.i("JarvisVoiceService", "onToolCall received: '$name' (standby=${_isStandby.value}, state=$conversationState, hasWake=$currentTurnHasWakeWord, followUp=$isInFollowUpWindow, fg=$isAppInForeground)")
                     if (isUserMuted) {
                         Log.d("JarvisVoiceService", "Ignoring tool call '$name' because user is muted.")
                         geminiLive?.sendToolResponse(callId, name, JSONObject().put("status", "muted"))
@@ -2734,7 +2734,7 @@ class JarvisVoiceService : Service() {
             val rawMode = args.optString("mode", "").lowercase()
             val combinedStr = "$rawAction $rawDir $rawMode".lowercase()
 
-            Log.d("JarvisVoiceService", "adjustVolume raw args: $args")
+            Log.d("JarvisVoiceService", "adjustVolume request received")
 
             var percent = -1
             // Inspect all fields in JSON object for a percentage / level number
@@ -2792,7 +2792,7 @@ class JarvisVoiceService : Service() {
                     hardFailure = "Do Not Disturb or a system policy is blocking volume changes."
                 }
             } else {
-                Log.w("JarvisVoiceService", "adjustVolume: no direction or percent found in $args")
+                Log.w("JarvisVoiceService", "adjustVolume: no direction or percent found in request")
                 finalDisplayPercent = kotlin.math.round((curVolBefore.toFloat() / maxVolBefore.toFloat()) * 100).toInt()
                 hardFailure = "I couldn't tell whether you wanted volume up, down, or a specific level."
             }
