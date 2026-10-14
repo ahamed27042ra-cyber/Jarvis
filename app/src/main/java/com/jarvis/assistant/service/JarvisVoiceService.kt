@@ -1153,7 +1153,7 @@ class JarvisVoiceService : Service() {
                 try {
                     startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
                 } catch (e2: Exception) {
-                    Log.e("JarvisVoiceService", "startForeground SPECIAL_USE failed: ${e2.message}")
+                    Log.e("JarvisVoiceService", "startForeground SPECIAL_USE failed (${e2.javaClass.simpleName})")
                 }
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
