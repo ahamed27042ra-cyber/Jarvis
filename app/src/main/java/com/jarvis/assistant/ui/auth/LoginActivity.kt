@@ -196,40 +196,6 @@ class LoginActivity : AppCompatActivity() {
             proceedWithUser(user.uid, user.displayName?.takeIf { it.isNotBlank() } ?: cleanName, user.email?.takeIf { it.isNotBlank() } ?: email, user.photoUrl?.toString() ?: photoUrl)
         }
     }
-    private fun authenticateWithFirebaseUser(name: String, email: String, photoUrl: String) {
-        val validEmail = if (email.contains("@")) email else "user_${System.currentTimeMillis()}@gmail.com"
-        val tempPassword = "JarvisUser#2026!Secured"
-
-        firebaseAuth.signInWithEmailAndPassword(validEmail, tempPassword)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful && firebaseAuth.currentUser != null) {
-                    val user = firebaseAuth.currentUser!!
-                    proceedWithUser(user.uid, name, validEmail, photoUrl)
-                } else {
-                    firebaseAuth.createUserWithEmailAndPassword(validEmail, tempPassword)
-                        .addOnCompleteListener { createTask ->
-                            if (createTask.isSuccessful && firebaseAuth.currentUser != null) {
-                                val user = firebaseAuth.currentUser!!
-                                proceedWithUser(user.uid, name, validEmail, photoUrl)
-                            } else {
-                                Log.w("LoginActivity", "Email auth fallback (${createTask.exception?.message}). Trying Anonymous Auth.")
-                                firebaseAuth.signInAnonymously()
-                                    .addOnCompleteListener { anonTask ->
-                                        if (anonTask.isSuccessful && firebaseAuth.currentUser != null) {
-                                            val anonUser = firebaseAuth.currentUser!!
-                                            proceedWithUser(anonUser.uid, name, validEmail, photoUrl)
-                                        } else {
-                                            val cleanEmailStr = validEmail.lowercase().replace(Regex("[^a-z0-9]"), "")
-                                            val clientUid = "usr_" + cleanEmailStr
-                                            proceedWithUser(clientUid, name, validEmail, photoUrl)
-                                        }
-                                    }
-                            }
-                        }
-                }
-            }
-    }
-
     private fun proceedWithUser(uid: String, name: String, email: String, photoUrl: String) {
         signInProgressBar.visibility = View.VISIBLE
         googleSignInBtn.isEnabled = false
