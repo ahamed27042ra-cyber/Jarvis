@@ -124,7 +124,13 @@ class WebsiteBuilderActivity : AppCompatActivity() {
             val key = apiKeyInput.text.toString().trim()
             val selectedModel = modelSpinner.selectedItem?.toString() ?: OpenRouterWebsiteGenerator.DEFAULT_MODEL
 
-            OpenRouterWebsiteGenerator.saveApiKey(this, key)
+            try {
+                OpenRouterWebsiteGenerator.saveApiKey(this, key)
+            } catch (e: IllegalStateException) {
+                android.util.Log.e("WebsiteBuilderActivity", "Secure storage unavailable; refusing to save API key", e)
+                Toast.makeText(this, "Secure storage unavailable. API key was not saved.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             OpenRouterWebsiteGenerator.saveSelectedModel(this, selectedModel)
 
             Toast.makeText(this, "OpenRouter configuration saved!", Toast.LENGTH_SHORT).show()
