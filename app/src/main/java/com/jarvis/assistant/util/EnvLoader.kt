@@ -2,7 +2,6 @@ package com.jarvis.assistant.util
 
 import android.content.Context
 import com.jarvis.assistant.JarvisApplication
-import java.io.InputStream
 import java.util.Properties
 
 /**
