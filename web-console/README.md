@@ -1,19 +1,21 @@
 # JARVIS Web Console — starter
 
-This folder is a standalone, responsive web companion for the existing Android JARVIS app.
-The upstream repository's README describes an admin-panel, but the current tracked tree does not include that folder. This web companion is intentionally isolated from the Android app source.
+Standalone responsive web companion for the Android JARVIS project. The upstream README describes `/admin-panel`, but that directory is not tracked in the current repository tree; this implementation is isolated under `web-console/`.
 
-## Current status
-- Responsive static dashboard shell
-- Login UI shell (not connected to Firebase Authentication yet)
-- PWA manifest/service worker for installability
-- Explicit notice that live device control requires a secured backend/validated Firebase rules
+## Included
+- Responsive dark dashboard shell
+- Sign-in preview only (no real authentication enabled)
+- PWA manifest, SVG icon, offline service-worker shell
 
-## Security requirements before production
-1. Configure Firebase Authentication using a dedicated web app and allowed domains.
-2. Use Firebase Realtime Database rules that enforce authenticated per-user access.
-3. Never expose Gemini/OpenRouter/server secrets in browser JavaScript.
-4. Do not wire device command dispatch until command authorization, replay protection, device ownership, and audit logging are implemented.
-5. Use HTTPS hosting and test login, database rules, and mobile/desktop flows.
+## Run locally
+Serve this folder with any static HTTP server. Service workers and PWA install prompts require HTTPS (or localhost).
 
-This is a front-end starter, not a claim that live login or phone control is already working.
+## Required before production
+1. Configure a Firebase Web app and Firebase Authentication provider; restrict authorized domains.
+2. Enforce authenticated per-user access with Firebase Realtime Database rules, then test them with the Firebase emulator.
+3. Keep Gemini / OpenRouter / other secret keys on a trusted server, never in browser JS or public config.
+4. Do not enable phone command dispatch until identity, device ownership, permission scopes, replay prevention, and audit logs are implemented.
+5. Enable HTTPS hosting, add CSP/security headers, and test authentication, mobile/desktop routes, API rules, and console errors.
+
+## Current limitations
+The sign-in panel is deliberately a preview and discards the entered password. It is not a live login. No real-time device mirroring, command delivery, or autonomous coding worker is connected. These need a secured backend and a verified device/database integration.
