@@ -598,8 +598,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val hasKey = isApiKeyConfigured()
-        var currentKey = EnvLoader.getApiKey(this)
-        if (currentKey.isBlank()) currentKey = prefs().getString("api_key", "") ?: ""
+        val currentKey = EnvLoader.getApiKey(this)
         val currentUserName = prefs().getString("user_name", "Sir") ?: "Sir"
         var currentVoice = prefs().getString("gemini_voice", "Aoede") ?: "Aoede"
         if (currentVoice.equals("Puck", ignoreCase = true)) currentVoice = "Aoede"
@@ -1117,10 +1116,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        var apiKey = EnvLoader.getApiKey(this)
-        if (apiKey.isBlank()) {
-            apiKey = prefs().getString("api_key", "") ?: ""
-        }
+        val apiKey = EnvLoader.getApiKey(this)
 
         val userName = prefs().getString("user_name", "Sir") ?: "Sir"
         val modelString = prefs().getString("gemini_model", "models/gemini-3.1-flash-live-preview")
@@ -1152,10 +1148,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isApiKeyConfigured(): Boolean {
-        var apiKey = EnvLoader.getApiKey(this)
-        if (apiKey.isBlank()) {
-            apiKey = prefs().getString("api_key", "") ?: ""
-        }
+        val apiKey = EnvLoader.getApiKey(this)
         return apiKey.isNotBlank()
     }
 
