@@ -240,7 +240,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun isLocallyAuthenticated(): Boolean {
-        return getSharedPreferences("jarvis_prefs", MODE_PRIVATE).getBoolean("is_authenticated", false)
+        // A persisted boolean alone is not an authenticated session. Require Firebase's
+        // restored signed-in user as well, so stale/local preference data cannot skip login.
+        val hasFirebaseUser = !firebaseAuth.currentUser?.uid.isNullOrBlank()
+        val hasLocalSessionFlag = getSharedPreferences("jarvis_prefs", MODE_PRIVATE)
+            .getBoolean("is_authenticated", false)
+        return hasFirebaseUser && hasLocalSessionFlag
     }
 
     private fun showError(msg: String) {
