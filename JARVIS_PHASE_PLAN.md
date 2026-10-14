@@ -14,7 +14,7 @@ This file is the implementation checklist for completing JARVIS in small, verifi
 - [x] Android debug APK build succeeds in GitHub Actions.
 - [x] Android release APK build succeeds in GitHub Actions.
 - [x] Web console deploys to GitHub Pages and the updated status text is live.
-- [ ] Record build, signing, dependency, and artifact results for each run.
+- [ ] Record build, signing, dependency, and artifact results for each run.\n- [x] Fix the first CI-reported Android lint permission issue by declaring `android.permission.VIBRATE`; re-run lint to discover any remaining errors.
 - [x] Add automated static checks for web assets and secret-like strings; Android unit-test/lint tasks added to CI and pending first verified result.
 
 ## Phase 2 — Authentication and secrets
