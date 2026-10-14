@@ -29,12 +29,14 @@ object SimManager {
         val subId: Int
     )
 
-    private fun hasPermission(context: Context): Boolean =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
-
     /** Every SIM currently capable of placing a call, mapped to exact slot index and subId. */
     fun getCallCapableSims(context: Context): List<SimOption> {
-        if (!hasPermission(context)) return emptyList()
+        // Keep the permission check in this method so lint can verify guarded telephony calls.
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) return emptyList()
 
         val results = mutableListOf<SimOption>()
 
