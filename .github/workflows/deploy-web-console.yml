@@ -50,6 +50,9 @@ jobs:
           assert "addEventListener" in worker and "fetch" in worker, "Service worker fetch handler is missing"
           assert "Status verified: this web console is a static preview." in html, "Preview/connection status notice is missing"
           assert "Content-Security-Policy" in html and "object-src" in html and "base-uri" in html, "Content Security Policy meta tag is missing"
+          assert 'id="demoLogin"' in html and "Not connected: configure Firebase Authentication" in html, "Demo login must clearly remain disconnected"
+          assert "No password is stored or sent" in html, "Demo form privacy notice is missing"
+          assert "serviceWorker.register" in html, "PWA service worker registration is missing"
           assert not re.search(r"(AIza[0-9A-Za-z_-]{30,}|-----BEGIN (?:RSA |EC )?PRIVATE KEY-----)", html + worker), "Possible secret found in public web assets"
           print("Web console validation passed: required assets, HTML, manifest, service worker, truthful status, and secret scan.")
           PY
