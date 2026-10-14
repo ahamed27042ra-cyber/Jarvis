@@ -14,12 +14,15 @@ This file is the implementation checklist for completing JARVIS in small, verifi
 - [x] Android debug APK build succeeds in GitHub Actions.
 - [x] Android release APK build succeeds in GitHub Actions.
 - [x] Web console deploys to GitHub Pages and the updated status text is live.
-- [ ] Record build, signing, dependency, and artifact results for each run.\n- [x] Fix the first CI-reported Android lint permission issue by declaring `android.permission.VIBRATE`; re-run lint to discover any remaining errors.
-- [x] Add automated static checks for web assets and secret-like strings; Android unit-test/lint tasks added to CI and pending first verified result.
+- [ ] Record build, signing, dependency, and artifact results for each run.
+- [x] Fix the first CI-reported Android lint permission issue by declaring `android.permission.VIBRATE`; re-run lint to discover any remaining errors.
+- [x] Add automated static checks for web assets and secret-like strings; Android unit-test/lint tasks added to CI.
+- [ ] Clear all Android lint errors and verify the full CI pipeline; the latest run is still checking the crash-recovery navigation fix.
 
 ## Phase 2 — Authentication and secrets
 - [ ] Audit Firebase project configuration and Google Sign-In OAuth client IDs.
-- [x] Remove cached-account fallback after a failed Google Sign-In result.\n- [ ] Verify login success/failure/cancel flows on a configured Firebase project and real device.
+- [x] Remove cached-account fallback after a failed Google Sign-In result.
+- [ ] Verify login success/failure/cancel flows on a configured Firebase project and real device.
 - [ ] Confirm Firebase Authentication is enabled and authorized domains are correct.
 - [ ] Keep provider/API secrets server-side; verify public repository and APK contain no private secrets.
 - [ ] Test unauthenticated and unauthorized access.
