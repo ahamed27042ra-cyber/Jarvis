@@ -17,9 +17,14 @@ object EnvLoader {
     fun getApiKey(context: Context): String {
         cachedApiKey?.takeIf { it.isNotBlank() }?.let { return it }
 
-        val prefsKey = com.jarvis.assistant.security.EncryptedPrefsManager
-            .getOrMigrateSecureString(context, JarvisApplication.PREFS_NAME, "api_key")
-            .trim()
+        val prefsKey = try {
+            com.jarvis.assistant.security.EncryptedPrefsManager
+                .getOrMigrateSecureString(context, JarvisApplication.PREFS_NAME, "api_key")
+                .trim()
+        } catch (e: IllegalStateException) {
+            android.util.Log.e("EnvLoader", "Secure storage unavailable; refusing to read plaintext API key", e)
+            return ""
+        }
         if (prefsKey.isNotEmpty()) {
             cachedApiKey = prefsKey
             return prefsKey
