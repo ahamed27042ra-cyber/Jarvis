@@ -61,10 +61,10 @@ class LoginActivity : AppCompatActivity() {
             val name = account.displayName ?: account.givenName ?: account.email?.substringBefore("@") ?: "Jarvis User"
             onAuthSuccess(name, account.email.orEmpty(), account.photoUrl?.toString().orEmpty(), account.idToken)
         } catch (e: ApiException) {
+            // A cached Google account is not proof that this sign-in attempt succeeded.
+            // Require a successful result from the current sign-in flow before Firebase auth.
             Log.e("LoginActivity", "Google Sign-In failed: statusCode=" + e.statusCode, e)
-            GoogleSignIn.getLastSignedInAccount(this)?.let { account ->
-                onAuthSuccess(account.displayName ?: account.givenName ?: account.email?.substringBefore("@") ?: "Jarvis User", account.email.orEmpty(), account.photoUrl?.toString().orEmpty(), account.idToken)
-            } ?: showError("Google Sign-In failed (code " + e.statusCode + "). Please try again.")
+            showError("Google Sign-In failed (code " + e.statusCode + "). Please try again.")
         } catch (e: Exception) {
             Log.e("LoginActivity", "Google Sign-In result processing failed", e)
             showError("Google Sign-In failed. Please try again.")
