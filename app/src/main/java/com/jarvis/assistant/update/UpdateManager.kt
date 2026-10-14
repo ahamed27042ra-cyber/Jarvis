@@ -24,6 +24,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.Keep
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.jarvis.assistant.R
 import kotlinx.coroutines.CoroutineScope
@@ -412,18 +413,12 @@ object UpdateManager {
                 }
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.registerReceiver(
-                    onComplete,
-                    IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                    Context.RECEIVER_EXPORTED
-                )
-            } else {
-                context.registerReceiver(
-                    onComplete,
-                    IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-                )
-            }
+            ContextCompat.registerReceiver(
+                context,
+                onComplete,
+                IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                ContextCompat.RECEIVER_EXPORTED
+            )
         } catch (e: Exception) {
             Log.e(TAG, "DownloadManager failed to enqueue, attempting direct download", e)
             downloadDirectFallback(context, updateInfo.apkUrl, destinationFile, onProgressUpdate)
