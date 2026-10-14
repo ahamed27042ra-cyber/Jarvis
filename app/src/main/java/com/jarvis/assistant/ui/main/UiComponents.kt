@@ -142,7 +142,10 @@ class ChatAdapter(private val messages: MutableList<ChatMessage> = mutableListOf
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val msg = messages[position]
+        val currentPosition = holder.bindingAdapterPosition
+        if (currentPosition == RecyclerView.NO_POSITION || currentPosition !in messages.indices) return
+
+        val msg = messages[currentPosition]
         when (holder) {
             is UserViewHolder -> {
                 holder.text.text = msg.text
@@ -153,8 +156,8 @@ class ChatAdapter(private val messages: MutableList<ChatMessage> = mutableListOf
             }
         }
 
-        if (position > lastAnimatedPosition) {
-            lastAnimatedPosition = position
+        if (currentPosition > lastAnimatedPosition) {
+            lastAnimatedPosition = currentPosition
             AnimUtils.entranceAnimate(holder.itemView)
         } else {
             holder.itemView.animate().cancel()
