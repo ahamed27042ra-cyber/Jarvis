@@ -19,8 +19,9 @@ object EnvLoader {
     fun getApiKey(context: Context): String {
         cachedApiKey?.takeIf { it.isNotBlank() }?.let { return it }
 
-        val prefsKey = context.getSharedPreferences(JarvisApplication.PREFS_NAME, Context.MODE_PRIVATE)
-            .getString("api_key", "")?.trim() ?: ""
+        val prefsKey = com.jarvis.assistant.security.EncryptedPrefsManager
+            .getOrMigrateSecureString(context, JarvisApplication.PREFS_NAME, "api_key")
+            .trim()
         if (prefsKey.isNotEmpty()) {
             cachedApiKey = prefsKey
             return prefsKey
