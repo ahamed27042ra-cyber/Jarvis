@@ -135,21 +135,20 @@ class GeminiLiveClient(
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 // Ignore failures from old superseded WebSocket instances
                 if (this@GeminiLiveClient.webSocket != null && webSocket != this@GeminiLiveClient.webSocket) {
-                    Log.d(TAG, "Ignoring onFailure on old superseded WebSocket (${t.javaClass.simpleName}: ${t.message})")
+                    Log.d(TAG, "Ignoring failure on superseded WebSocket (${t.javaClass.simpleName})")
                     return
                 }
                 if (isRenewingSession) {
-                    Log.d(TAG, "Ignoring onFailure during session renewal (${t.javaClass.simpleName}: ${t.message})")
+                    Log.d(TAG, "Ignoring failure during session renewal (${t.javaClass.simpleName})")
                     return
                 }
 
-                val errorBody = try { response?.body?.string() } catch (_: Exception) { null }
+                // Avoid logging exception text or server bodies, which may contain request metadata.
                 val fullError = buildString {
-                    append("WebSocket failure: ${t.javaClass.simpleName}: ${t.message}")
-                    if (response != null) append("\nHTTP ${response.code}: ${response.message}")
-                    if (!errorBody.isNullOrBlank()) append("\nBody: $errorBody")
+                    append("WebSocket failure: ${t.javaClass.simpleName}")
+                    if (response != null) append(" (HTTP ${response.code})")
                 }
-                Log.e(TAG, fullError, t)
+                Log.e(TAG, fullError)
                 cleanupTimers()
 
                 // Only bubble error overlay to user if it's a fatal/permanent HTTP error
@@ -1303,7 +1302,7 @@ class GeminiLiveClient(
     /** Send a free-form text turn to JARVIS (e.g. text chat, phone-action confirmations). */
     fun sendText(text: String, turnComplete: Boolean = true) {
         if (!isSetupComplete || webSocket == null || !isSocketHealthy()) {
-            Log.i(TAG, "sendText: socket not ready or not healthy (isSetupComplete=$isSetupComplete, healthy=${isSocketHealthy()}). Queuing text: '$text'")
+            Log.i(TAG, "sendText queued because socket is not ready (isSetupComplete=$isSetupComplete, healthy=${isSocketHealthy()})")
             pendingTextQueue.offer(Pair(text, turnComplete))
             if ((webSocket == null || !isSocketHealthy()) && !isManuallyClosed) {
                 disconnect(manual = false)
@@ -1312,7 +1311,7 @@ class GeminiLiveClient(
             return
         }
         try {
-            Log.i(TAG, "sendText invoked: '$text' (connected=${isConnected()})")
+            Log.i(TAG, "sendText invoked (connected=${isConnected()})")
             val msg = JSONObject().apply {
                 put("client_content", JSONObject().apply {
                     put("turns", JSONArray().put(JSONObject().apply {
@@ -1325,8 +1324,8 @@ class GeminiLiveClient(
             val sent = webSocket?.send(msg.toString()) ?: false
             Log.i(TAG, "sendText dispatched to socket: sent=$sent")
         } catch (e: Exception) {
-            Log.e(TAG, "sendText failed: ${e.message}")
-            onError?.invoke("Failed to send text: ${e.message}")
+            Log.e(TAG, "sendText failed (${e.javaClass.simpleName})")
+            onError?.invoke("Failed to send text. Please try again.")
         }
     }
 
@@ -1362,8 +1361,8 @@ class GeminiLiveClient(
             }
             webSocket?.send(msg.toString())
         } catch (e: Exception) {
-            Log.e(TAG, "sendToolResponse failed: ${e.message}")
-            onError?.invoke("Failed to send tool response for '$functionName': ${e.message}")
+            Log.e(TAG, "sendToolResponse failed (${e.javaClass.simpleName})")
+            onError?.invoke("Failed to send tool response. Please try again.")
         }
     }
 
