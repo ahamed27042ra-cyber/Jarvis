@@ -17,7 +17,7 @@ This file is the implementation checklist for completing JARVIS in small, verifi
 - [ ] Record build, signing, dependency, and artifact results for each run.
 - [x] Fix the first CI-reported Android lint permission issue by declaring `android.permission.VIBRATE`; re-run lint to discover any remaining errors.
 - [x] Add automated static checks for web assets and secret-like strings; Android unit-test/lint tasks added to CI.
-- [ ] Clear all Android lint errors and verify the full CI pipeline; the latest run is checking optional camera-autofocus and telephony hardware declarations. Unit-test step passed; lint and APK packaging are still pending.
+- [x] Clear the Android lint errors and verify the full CI pipeline for commit `0d6d0d4` (unit tests, lint, debug/release APK builds, signing report, and artifact uploads passed). Newer documentation/web-security commits have separate Android CI runs still in progress.
 
 ## Phase 2 — Authentication and secrets
 - [ ] Audit Firebase project configuration and Google Sign-In OAuth client IDs.
@@ -48,7 +48,7 @@ This file is the implementation checklist for completing JARVIS in small, verifi
 ## Phase 6 — Web console and PWA
 - [x] Responsive static shell and offline fallback.
 - [x] Clear preview messaging; no fake live-auth or device-connected status.
-- [ ] Add CSP/security headers and browser smoke tests.
+- [x] Add a restrictive CSP meta policy and CI validation for its presence on the static page.\n- [ ] Add deploy-level security headers where the hosting platform supports them and run browser smoke tests; CSP meta tags do not replace all HTTP response headers.
 - [ ] Connect real-time status only after Phase 5 authorization is implemented.
 - [ ] Test mobile/desktop layouts, offline behavior, and service-worker upgrades.
 
