@@ -42,9 +42,14 @@ object OpenRouterWebsiteGenerator {
     )
 
     fun getApiKey(context: Context): String {
-        return com.jarvis.assistant.security.EncryptedPrefsManager.getOrMigrateSecureString(
-            context, JarvisApplication.PREFS_NAME, PREF_OPENROUTER_KEY
-        )
+        return try {
+            com.jarvis.assistant.security.EncryptedPrefsManager.getOrMigrateSecureString(
+                context, JarvisApplication.PREFS_NAME, PREF_OPENROUTER_KEY
+            )
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Secure storage unavailable; refusing to read plaintext OpenRouter key", e)
+            ""
+        }
     }
 
     fun saveApiKey(context: Context, apiKey: String) {
