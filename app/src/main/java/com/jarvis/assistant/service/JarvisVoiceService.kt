@@ -196,7 +196,7 @@ class JarvisVoiceService : Service() {
     }
 
     fun updateSessionConfig(newApiKey: String, newModel: String, newVoice: String, newPrompt: String) {
-        Log.i("JarvisVoiceService", "Updating session config dynamically: model=$newModel, voice=$newVoice, keyLen=${newApiKey.length}")
+        Log.i("JarvisVoiceService", "Updating session config dynamically: model=$newModel, voice=$newVoice, API key configured=${newApiKey.isNotBlank()}")
         var configChanged = false
         if (newApiKey.isNotBlank() && newApiKey != cachedApiKey) {
             cachedApiKey = newApiKey
@@ -1238,7 +1238,7 @@ class JarvisVoiceService : Service() {
         if (effectivePrompt.isNotBlank()) cachedSystemPrompt = effectivePrompt
         if (effectiveVoice.isNotBlank()) cachedVoiceName = effectiveVoice
 
-        Log.d("JarvisVoiceService", "startSession called: key len=${effectiveApiKey.length}, model=$effectiveModel, isSessionStarted=$isSessionStarted, hasGeminiLive=${geminiLive != null}")
+        Log.d("JarvisVoiceService", "startSession called: API key configured=${effectiveApiKey.isNotBlank()}, model=$effectiveModel, isSessionStarted=$isSessionStarted, hasGeminiLive=${geminiLive != null}")
 
         if (isSessionStarted && geminiLive != null) return
         isSessionStarted = true
