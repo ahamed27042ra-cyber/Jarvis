@@ -17,7 +17,7 @@ This file is the implementation checklist for completing JARVIS in small, verifi
 - [ ] Record build, signing, dependency, and artifact results for each run.
 - [x] Fix the first CI-reported Android lint permission issue by declaring `android.permission.VIBRATE`; re-run lint to discover any remaining errors.
 - [x] Add automated static checks for web assets and secret-like strings; Android unit-test/lint tasks added to CI.
-- [ ] Clear all Android lint errors and verify the full CI pipeline; the latest run is still checking the crash-recovery navigation fix.
+- [ ] Clear all Android lint errors and verify the full CI pipeline; the latest run is checking optional camera-autofocus and telephony hardware declarations. Unit-test step passed; lint and APK packaging are still pending.
 
 ## Phase 2 — Authentication and secrets
 - [ ] Audit Firebase project configuration and Google Sign-In OAuth client IDs.
