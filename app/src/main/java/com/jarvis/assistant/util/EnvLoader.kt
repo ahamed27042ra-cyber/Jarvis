@@ -27,22 +27,9 @@ object EnvLoader {
             return prefsKey
         }
 
-        return try {
-            val assetManager = context.assets
-            val inputStream = assetManager.open("env.properties")
-            val properties = Properties()
-            properties.load(inputStream)
-            val apiKey = properties.getProperty("GEMINI_API_KEY")?.trim() ?: ""
-            if (apiKey.isNotEmpty() && !apiKey.contains("YOUR_GEMINI_API_KEY")) {
-                cachedApiKey = apiKey
-                apiKey
-            } else {
-                ""
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("EnvLoader", "Failed to load API key from env.properties", e)
-            ""
-        }
+        // Do not load Gemini credentials from APK assets: anything bundled in an APK
+        // can be extracted. Users must provide a key, which is stored encrypted above.
+        return ""
     }
 
     fun getYoutubeApiKey(context: Context): String {
