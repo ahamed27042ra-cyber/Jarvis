@@ -2,10 +2,9 @@ package com.jarvis.assistant.util
 
 import android.content.Context
 import com.jarvis.assistant.JarvisApplication
-import java.util.Properties
 
 /**
- * Utility to load variables from SharedPreferences and assets/env.properties file.
+ * Loads API credentials from encrypted local storage or Firebase Remote Config.
  */
 object EnvLoader {
     private var cachedApiKey: String? = null
@@ -41,20 +40,8 @@ object EnvLoader {
             return firebaseKey
         }
 
-        // 2. Fallback to local env.properties if Firebase key is not configured
-        return try {
-            val properties = Properties()
-            properties.load(context.assets.open("env.properties"))
-            val key = properties.getProperty("YOUTUBE_API_KEY")?.trim() ?: ""
-            if (key.isNotEmpty() && !key.contains("YOUR_YOUTUBE_DATA_API_KEY")) {
-                cachedYoutubeKey = key
-                key
-            } else {
-                ""
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("EnvLoader", "Failed to load YouTube API key from env.properties", e)
-            ""
-        }
+        // Never package API credentials in APK assets; they can be extracted from the APK.
+        // If Remote Config is not configured, leave the key empty and use keyless fallbacks.
+        return ""
     }
 }
