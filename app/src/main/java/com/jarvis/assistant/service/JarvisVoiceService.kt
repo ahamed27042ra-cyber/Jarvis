@@ -994,9 +994,17 @@ class JarvisVoiceService : Service() {
     fun ensureSessionActive() {
         if (isSessionStarted && geminiLive?.isConnected() == true) return
         val prefs = getSharedPreferences("jarvis_prefs", Context.MODE_PRIVATE)
-        val apiKey = cachedApiKey.ifBlank {
-            prefs.getString("cached_api_key", "") ?: ""
-        }.ifBlank {
+        val secureCachedKey = try {
+            cachedApiKey.ifBlank {
+                com.jarvis.assistant.security.EncryptedPrefsManager.getOrMigrateSecureString(
+                    this, "jarvis_prefs", "cached_api_key"
+                )
+            }
+        } catch (e: IllegalStateException) {
+            Log.e("JarvisVoiceService", "Secure storage unavailable; cannot load cached API key", e)
+            ""
+        }
+        val apiKey = secureCachedKey.ifBlank {
             com.jarvis.assistant.util.EnvLoader.getApiKey(this)
         }
         val model = cachedModelString.ifBlank {
@@ -1226,13 +1234,19 @@ class JarvisVoiceService : Service() {
         if (effectiveApiKey.isNotBlank()) {
             cachedApiKey = effectiveApiKey
             try {
+                com.jarvis.assistant.security.EncryptedPrefsManager.putSecureString(
+                    this, "cached_api_key", effectiveApiKey
+                )
                 getSharedPreferences("jarvis_prefs", Context.MODE_PRIVATE).edit()
-                    .putString("cached_api_key", effectiveApiKey)
+                    .remove("cached_api_key")
                     .putString("cached_model", effectiveModel)
                     .putString("cached_voice", effectiveVoice)
                     .putString("cached_prompt", effectivePrompt)
                     .apply()
-            } catch (_: Exception) {}
+            } catch (e: IllegalStateException) {
+                // Never persist API credentials in plaintext if secure storage is unavailable.
+                Log.e("JarvisVoiceService", "Secure storage unavailable; API key cache was not saved", e)
+            }
         }
         if (effectiveModel.isNotBlank()) cachedModelString = effectiveModel
         if (effectivePrompt.isNotBlank()) cachedSystemPrompt = effectivePrompt

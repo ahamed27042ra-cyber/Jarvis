@@ -29,13 +29,45 @@ object EncryptedPrefsManager {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize EncryptedSharedPreferences, falling back to private prefs", e)
-            context.getSharedPreferences(ENCRYPTED_PREFS_FILENAME, Context.MODE_PRIVATE)
+            // Fail closed: do not silently downgrade credentials to unencrypted storage.
+            Log.e(TAG, "Encrypted preferences unavailable; refusing plaintext fallback", e)
+            throw IllegalStateException("JARVIS secure storage is unavailable on this device", e)
         }
     }
 
+    /**
+     * Reads an encrypted value first. If absent, migrates a legacy value from the named
+     * preferences file and removes the plaintext copy only after the encrypted write succeeds.
+     * If secure storage is unavailable, the exception is intentionally propagated (fail closed).
+     */
+    fun getOrMigrateSecureString(
+        context: Context,
+        legacyPreferencesName: String,
+        key: String,
+        defaultValue: String = ""
+    ): String {
+        val secureValue = getSecureString(context, key, "")
+        if (secureValue.isNotBlank()) return secureValue
+
+        val legacyPrefs = context.getSharedPreferences(legacyPreferencesName, Context.MODE_PRIVATE)
+        val legacyValue = legacyPrefs.getString(key, null)?.trim()
+        if (legacyValue.isNullOrBlank()) return defaultValue
+
+        // Migration must reach disk before deleting the only legacy copy. apply() is
+        // asynchronous, so use commit() here and fail closed if persistence is unsuccessful.
+        val persisted = getSecurePreferences(context).edit().putString(key, legacyValue).commit()
+        if (!persisted) {
+            throw IllegalStateException("Could not persist migrated credential securely")
+        }
+        legacyPrefs.edit().remove(key).commit()
+        return legacyValue
+    }
+
     fun putSecureString(context: Context, key: String, value: String) {
-        getSecurePreferences(context).edit().putString(key, value).apply()
+        val persisted = getSecurePreferences(context).edit().putString(key, value).commit()
+        if (!persisted) {
+            throw IllegalStateException("Could not persist credential securely")
+        }
     }
 
     fun getSecureString(context: Context, key: String, defaultValue: String = ""): String {

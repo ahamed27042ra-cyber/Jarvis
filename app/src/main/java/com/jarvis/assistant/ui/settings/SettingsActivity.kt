@@ -479,10 +479,8 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updateApiKeyFieldUI() {
         geminiKeyContainer.visibility = View.VISIBLE
-        val p = prefs()
-        val savedGemini = p.getString("api_key", "") ?: ""
-        val defaultGemini = EnvLoader.getApiKey(this)
-        apiKeyInput.setText(if (savedGemini.isNotBlank()) savedGemini else defaultGemini)
+        val savedGemini = EnvLoader.getApiKey(this)
+        apiKeyInput.setText(savedGemini)
     }
 
     private fun saveAndClose() {
@@ -501,8 +499,17 @@ class SettingsActivity : AppCompatActivity() {
         val maleVoices = setOf("puck", "charon", "fenrir", "orus", "arvind", "amartya", "dev")
         val isFemale = !maleVoices.contains(selectedVoice.lowercase().trim())
 
+        val newApiKey = apiKeyInput.text.toString().trim()
+        try {
+            com.jarvis.assistant.security.EncryptedPrefsManager.putSecureString(this, "api_key", newApiKey)
+            prefs().edit().remove("api_key").apply()
+        } catch (e: IllegalStateException) {
+            Log.e("SettingsActivity", "Secure storage unavailable; refusing to save API key", e)
+            Toast.makeText(this, "Secure storage unavailable. API key was not saved.", Toast.LENGTH_LONG).show()
+            return
+        }
+
         prefs().edit().apply {
-            putString("api_key", apiKeyInput.text.toString().trim())
             putString("user_name", newUserName)
             putString("tts_engine", "gemini")
             putString("gemini_model", geminiModelValues.getOrNull(selectedModelIndex) ?: defaultGeminiModel)
@@ -516,7 +523,6 @@ class SettingsActivity : AppCompatActivity() {
             apply()
         }
 
-        val newApiKey = apiKeyInput.text.toString().trim()
         val newModel = geminiModelValues.getOrNull(selectedModelIndex) ?: defaultGeminiModel
         val newPrompt = com.jarvis.assistant.util.PromptBuilder.buildSystemPrompt(newUserName, selectedPersonality, isFemale, selectedVoice, languageValues.getOrNull(selectedLanguageIndex) ?: "auto")
 

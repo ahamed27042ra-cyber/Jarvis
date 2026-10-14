@@ -2,11 +2,9 @@ package com.jarvis.assistant.util
 
 import android.content.Context
 import com.jarvis.assistant.JarvisApplication
-import java.io.InputStream
-import java.util.Properties
 
 /**
- * Utility to load variables from SharedPreferences and assets/env.properties file.
+ * Loads API credentials from encrypted local storage or Firebase Remote Config.
  */
 object EnvLoader {
     private var cachedApiKey: String? = null
@@ -19,29 +17,22 @@ object EnvLoader {
     fun getApiKey(context: Context): String {
         cachedApiKey?.takeIf { it.isNotBlank() }?.let { return it }
 
-        val prefsKey = context.getSharedPreferences(JarvisApplication.PREFS_NAME, Context.MODE_PRIVATE)
-            .getString("api_key", "")?.trim() ?: ""
+        val prefsKey = try {
+            com.jarvis.assistant.security.EncryptedPrefsManager
+                .getOrMigrateSecureString(context, JarvisApplication.PREFS_NAME, "api_key")
+                .trim()
+        } catch (e: IllegalStateException) {
+            android.util.Log.e("EnvLoader", "Secure storage unavailable; refusing to read plaintext API key", e)
+            return ""
+        }
         if (prefsKey.isNotEmpty()) {
             cachedApiKey = prefsKey
             return prefsKey
         }
 
-        return try {
-            val assetManager = context.assets
-            val inputStream = assetManager.open("env.properties")
-            val properties = Properties()
-            properties.load(inputStream)
-            val apiKey = properties.getProperty("GEMINI_API_KEY")?.trim() ?: ""
-            if (apiKey.isNotEmpty() && !apiKey.contains("YOUR_GEMINI_API_KEY")) {
-                cachedApiKey = apiKey
-                apiKey
-            } else {
-                ""
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("EnvLoader", "Failed to load API key from env.properties", e)
-            ""
-        }
+        // Do not load Gemini credentials from APK assets: anything bundled in an APK
+        // can be extracted. Users must provide a key, which is stored encrypted above.
+        return ""
     }
 
     fun getYoutubeApiKey(context: Context): String {
@@ -54,20 +45,8 @@ object EnvLoader {
             return firebaseKey
         }
 
-        // 2. Fallback to local env.properties if Firebase key is not configured
-        return try {
-            val properties = Properties()
-            properties.load(context.assets.open("env.properties"))
-            val key = properties.getProperty("YOUTUBE_API_KEY")?.trim() ?: ""
-            if (key.isNotEmpty() && !key.contains("YOUR_YOUTUBE_DATA_API_KEY")) {
-                cachedYoutubeKey = key
-                key
-            } else {
-                ""
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("EnvLoader", "Failed to load YouTube API key from env.properties", e)
-            ""
-        }
+        // Never package API credentials in APK assets; they can be extracted from the APK.
+        // If Remote Config is not configured, leave the key empty and use keyless fallbacks.
+        return ""
     }
 }
